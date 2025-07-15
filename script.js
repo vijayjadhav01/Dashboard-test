@@ -1308,7 +1308,7 @@ function generateMonthlyChart(monthlyData) {
                     }
                 },
                 y: {
-                    beginAtZero: false,
+                    beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Avg Price (Rs/kg)'
