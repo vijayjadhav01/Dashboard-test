@@ -1655,6 +1655,16 @@ function switchSection(sectionName) {
 
 // NEW: Handle section-specific logic
 function handleSectionSwitch(sectionName) {
+
+const sourceSection = document.querySelector('.source-section');
+    if (sourceSection) {
+        if (sectionName === 'recent-stories' || sectionName === 'about') {
+            sourceSection.style.display = 'none';
+        } else {
+            sourceSection.style.display = 'block';
+        }
+    }
+
     switch(sectionName) {
         case 'state-map':
             // Auto-generate map if not already done
