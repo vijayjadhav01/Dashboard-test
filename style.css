@@ -1342,6 +1342,12 @@ body {
         font-size: 0.6rem;
     }
     
+#kpiCurrent {
+    display: none !important;
+}
+
+
+
     .diet-heatmap .date-header {
         font-size: 0.6rem;
     }
