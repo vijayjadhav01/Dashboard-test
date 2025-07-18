@@ -5,12 +5,16 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+    overflow: hidden;  /* Prevents scrolling of the entire page */
+}
+
 body {
     font-family: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     background-color: #f5f7fa;
     color: #333;
     line-height: 1.6;
-    overflow-x: hidden;
 }
 
 /* Header - Keep exactly as original */
@@ -55,8 +59,7 @@ body {
     width: 280px;
     background: #0070CC;
     color: white;
-    position: fixed;
-    height: calc(100vh - 80px);
+    height: 100%;  /* Fills flex parent height */
     overflow-y: auto;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     z-index: 50;
@@ -101,12 +104,11 @@ body {
 
 /* Main Content Area */
 .main-content {
-    margin-left: 280px;
     flex: 1;
     padding: 2rem;
     overflow-y: auto;
     background: #f5f7fa;
-    min-height: calc(100vh - 80px);
+    min-height: 0; /* Allows flex child to shrink as needed */
 }
 
 /* Content Sections */
@@ -1195,7 +1197,6 @@ body {
     }
     
     .main-content {
-        margin-left: 240px;
         padding: 1.5rem;
     }
     
@@ -1239,7 +1240,6 @@ body {
     }
     
     .main-content {
-        margin-left: 60px;
         padding: 1rem;
     }
     
