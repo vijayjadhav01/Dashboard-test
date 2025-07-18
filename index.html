@@ -9,6 +9,16 @@
 <body>
 <!-- partial:index.partial.html -->
 <!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>New Design Dashboard</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -236,97 +246,108 @@
                 </div>
             </section>
 
-            <!-- DIET CALCULATOR SECTION -->
+            <!-- DIET CALCULATOR SECTION - SINGLE CONTAINER REDESIGN -->
             <section id="diet-calculator-section" class="content-section">
                 <div class="card">
                     <h3 class="section-title">Daily Diet Cost Calculator</h3>
-                    <div class="diet-cost-container">
-                        <!-- Left Side: Summary -->
-                        <div class="diet-summary">
-                            <div class="data-info">
-                                <span class="data-date">Latest Data: <span id="dietDataDate">July 13, 2025</span></span>
+                    
+                    <!-- SINGLE COMBINED CONTAINER -->
+                    <div class="diet-breakdown-section">
+                        <!-- Latest Data -->
+                        <div class="data-date-info">
+                            <span class="data-date-label">Latest Data: <span id="dietDataDate">July 18, 2025</span></span>
+                        </div>
+                        
+                        <!-- Cost Summary Table -->
+                        <div class="cost-summary-table">
+                            <div class="cost-summary-header">
+                                <span class="cost-type-header"></span>
+                                <span class="person-header">1 Person</span>
+                                <span class="family-header">Family (4 Persons)</span>
                             </div>
                             
-                            <div class="cost-table">
-                                <div class="cost-header">
-                                    <span class="cost-type"></span>
-                                    <span class="person-col">1 Person</span>
-                                    <span class="family-col">Family (4 Persons)</span>
-                                </div>
-                                
-                                <div class="cost-row">
-                                    <span class="cost-label">Daily Cost:</span>
-                                    <span class="person-cost" id="dailyCost1">Rs 58.80</span>
-                                    <span class="family-cost" id="dailyCost4">Rs 235.20</span>
-                                </div>
-                                
-                                <div class="cost-row">
-                                    <span class="cost-label">
-                                    Monthly Total:
-                                    <span 
-                                    title="Daily Cost × 30 (latest prices)"
-                                    style="cursor: help; color: white; font-size: 1em; vertical-align: middle;                                     margin-left: 4px;"
-                                    >ℹ️</span>
-                                    </span>
-                                    <span class="person-cost" id="monthlyTotal1">Rs 1845.00</span>
-                                    <span class="family-cost" id="monthlyTotal4">Rs 7380.00</span>
-                                </div>
+                            <div class="cost-summary-row">
+                                <span class="cost-type-label">Daily Cost:</span>
+                                <span class="person-cost-value" id="dailyCost1">Rs 54.38</span>
+                                <span class="family-cost-value" id="dailyCost4">Rs 217.52</span>
                             </div>
+                            
+                            <div class="cost-summary-row">
+                                <span class="cost-type-label">Monthly Total:</span>
+                                <span class="person-cost-value" id="monthlyTotal1">Rs 1631.44</span>
+                                <span class="family-cost-value" id="monthlyTotal4">Rs 6525.74</span>
+                            </div>
+                        </div>
 
-                            <div class="cost-separator"></div>
-
-                            <div class="calculation-info">
-                                <h4 class="calculation-title"> How We Calculate:</h4>
-                                <div class="calculation-text">
-                                    <p><strong>Daily Nutritional Requirements:</strong></p>
-                                    <p class="requirements-paragraph">
-                                        <strong>Cereals: 250g</strong> • <strong>Pulses: 85g</strong> • <strong>Vegetables: 400g</strong> • <strong>Oils: 27g</strong> • <strong>Milk: 300ml</strong> • <strong>Salt: 5g</strong> • <strong>Sugar: 25g</strong>
-                                    </p>
-                                    <p class="calculation-note">
-                                        <em>* Based on <a href="https://www.nin.res.in/dietaryguidelines/pdfjs/locale/DGI07052024P.pdf" target="_blank" rel="noopener noreferrer">Dietary Guidelines for Indians</a> - ICMR-National Institute of Nutrition. 
-                                        Costs calculated using average market prices of available commodities.</em>
-                                    </p>
-                                </div>
+                        <!-- Breakdown Title -->
+                        <h4 class="breakdown-section-title">🥗 Breakdown (Daily)</h4>
+                        
+                        <!-- Horizontal Breakdown Items -->
+                        <div class="breakdown-items-horizontal">
+                            <div class="breakdown-item-card">
+                                <span class="item-category">Cereals</span>
+                                <span class="item-amount">(250g)</span>
+                                <span class="item-cost" id="cerealsCost">Rs 9.22</span>
+                            </div>
+                            
+                            <div class="breakdown-item-card">
+                                <span class="item-category">Pulses</span>
+                                <span class="item-amount">(85g)</span>
+                                <span class="item-cost" id="pulsesCost">Rs 8.86</span>
+                            </div>
+                            
+                            <div class="breakdown-item-card">
+                                <span class="item-category">Vegetables</span>
+                                <span class="item-amount">(400g)</span>
+                                <span class="item-cost" id="vegetablesCost">Rs 12.73</span>
+                            </div>
+                            
+                            <div class="breakdown-item-card">
+                                <span class="item-category">Oils</span>
+                                <span class="item-amount">(27g)</span>
+                                <span class="item-cost" id="oilsCost">Rs 4.55</span>
+                            </div>
+                            
+                            <div class="breakdown-item-card">
+                                <span class="item-category">Milk</span>
+                                <span class="item-amount">(300ml)</span>
+                                <span class="item-cost" id="milkCost">Rs 17.77</span>
+                            </div>
+                            
+                            <div class="breakdown-item-card">
+                                <span class="item-category">Salt</span>
+                                <span class="item-amount">(5g)</span>
+                                <span class="item-cost" id="saltCost">Rs 0.11</span>
+                            </div>
+                            
+                            <div class="breakdown-item-card">
+                                <span class="item-category">Sugar</span>
+                                <span class="item-amount">(25g)</span>
+                                <span class="item-cost" id="sugarCost">Rs 1.15</span>
                             </div>
                         </div>
                         
-                        <!-- Right Side: Breakdown -->
-                        <div class="diet-breakdown">
-                            <h4 class="breakdown-title">Breakdown (Daily):</h4>
-                            <div class="breakdown-list">
-                                <div class="breakdown-item">
-                                    <span class="item-name">Cereals (250g):</span>
-                                    <span class="item-cost" id="cerealsCost">Rs 12.50</span>
-                                </div>
-                                <div class="breakdown-item">
-                                    <span class="item-name">Pulses (85g):</span>
-                                    <span class="item-cost" id="pulsesCost">Rs 8.25</span>
-                                </div>
-                                <div class="breakdown-item">
-                                    <span class="item-name">Vegetables (400g):</span>
-                                    <span class="item-cost" id="vegetablesCost">Rs 16.00</span>
-                                </div>
-                                <div class="breakdown-item">
-                                    <span class="item-name">Oils (27g):</span>
-                                    <span class="item-cost" id="oilsCost">Rs 4.20</span>
-                                </div>
-                                <div class="breakdown-item">
-                                    <span class="item-name">Milk (300ml):</span>
-                                    <span class="item-cost" id="milkCost">Rs 15.30</span>
-                                </div>
-                                <div class="breakdown-item">
-                                    <span class="item-name">Salt (5g):</span>
-                                    <span class="item-cost" id="saltCost">Rs 0.05</span>
-                                </div>
-                                <div class="breakdown-item">
-                                    <span class="item-name">Sugar (25g):</span>
-                                    <span class="item-cost" id="sugarCost">Rs 2.50</span>
-                                </div>
-                                <div class="breakdown-divider"></div>
-                                <div class="breakdown-item breakdown-total">
-                                    <span class="item-name">Total:</span>
-                                    <span class="item-cost" id="totalCost">Rs 58.80</span>
-                                </div>
+                        <!-- Total Section -->
+                        <div class="breakdown-total-section">
+                            <div class="total-separator"></div>
+                            <div class="breakdown-total">
+                                <span class="total-label">Daily Total:</span>
+                                <span class="total-value" id="totalCost">Rs 54.38</span>
+                            </div>
+                        </div>
+
+                        <!-- How We Calculate Section -->
+                        <div class="calculation-methodology">
+                            <h4 class="methodology-title">How We Calculate:</h4>
+                            <div class="methodology-content">
+                                <p><strong>Daily Nutritional Requirements:</strong></p>
+                                <p class="requirements-text">
+                                    <strong>Cereals: 250g</strong> | <strong>Pulses: 85g</strong> | <strong>Vegetables: 400g</strong> | <strong>Oils: 27g</strong> | <strong>Milk: 300ml</strong> | <strong>Salt: 5g</strong> | <strong>Sugar: 25g</strong>
+                                </p>
+                                <p class="methodology-note">
+                                    <em>* Based on <a href="https://www.nin.res.in/dietaryguidelines/pdfjs/locale/DGI07052024P.pdf" target="_blank" rel="noopener noreferrer">Dietary Guidelines for Indians</a> - ICMR-National Institute of Nutrition. 
+                                    Costs calculated using average market prices of available commodities.</em>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -335,58 +356,49 @@
                 <!-- Diet Cost Trends Analysis -->
                 <div class="card">
                     <h3 class="section-title">Diet Cost Trends Analysis</h3>
-                    <div class="trends-container">
-                        <!-- Left Column: Filters + National Chart -->
-                        <div class="trends-left-column">
-                            <!-- Filters -->
-                            <div class="trends-filters">
-                                <div class="trends-filter-group">
-                                    <label class="trends-filter-label">Time Period</label>
-                                    <select class="trends-filter-select" id="trendsYearSelector">
-                                        <option value="latest">Last 12 Months</option>
-                                        <option value="2025">2025</option>
-                                        <option value="2024" selected>2024</option>
-                                        <option value="2023">2023</option>
-                                        <option value="2022">2022</option>
-                                        <option value="2021">2021</option>
-                                        <option value="2020">2020</option>
-                                        <option value="2019">2019</option>
-                                        <option value="2018">2018</option>
-                                        <option value="2017">2017</option>
-                                        <option value="2016">2016</option>
-                                        <option value="2015">2015</option>
-                                        <option value="2014">2014</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="trends-filter-group">
-                                    <label class="trends-filter-label">Family Size</label>
-                                    <div class="trends-filter-buttons">
-                                        <button class="trends-filter-btn" data-size="1">1 Person</button>
-                                        <button class="trends-filter-btn active" data-size="4">Family (4 Persons)</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- National Chart -->
-                            <div class="trends-national-chart">
-                                <h4 class="trends-chart-title">National Average - Monthly Trend (2024)</h4>
-                                <div class="trends-chart-container">
-                                    <canvas id="nationalDietChart"></canvas>
-                                </div>
+                    
+                    <!-- Trend Controls -->
+                    <div class="diet-trends-controls">
+                        <div class="family-size-filter">
+                            <label class="filter-label">Family Size:</label>
+                            <div class="family-size-buttons">
+                                <button class="family-size-btn" data-size="1">1 Person</button>
+                                <button class="family-size-btn active" data-size="4">Family (4 Persons)</button>
                             </div>
                         </div>
                         
-                        <!-- Right Column: State-wise Heatmap -->
-                        <div class="trends-right-column">
-                            <div class="trends-heatmap-section">
-                                <h4 class="trends-chart-title">State-wise Comparison - Last 10 Days</h4>
-                                <div class="trends-heatmap-container" id="stateHeatmapContainer">
-                                    <div class="trends-heatmap-placeholder">
-                                        🗺️ Interactive Heatmap: States × Last 10 Days
-                                        <br>Showing most recent state-wise diet cost data
-                                    </div>
-                                </div>
+                        <div class="date-range-filter">
+                            <label class="filter-label">Date Range:</label>
+                            <div class="date-range-buttons">
+                                <button class="date-range-btn" data-range="6months">Last 6 Months</button>
+                                <button class="date-range-btn" data-range="1year">Last Year</button>
+                                <button class="date-range-btn active" data-range="3years">Last 3 Years</button>
+                                <button class="date-range-btn" data-range="6years">Last 6 Years</button>
+                                <button class="date-range-btn" data-range="all">All Time</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- National Trends Chart -->
+                    <div class="diet-trends-chart-section">
+                        <h4 class="trends-chart-title" id="dietTrendsChartTitle">National Average - Diet Cost Trends (All Time)</h4>
+                        <div class="trends-chart-container">
+                            <canvas id="nationalDietChart"></canvas>
+                        </div>
+                        <div class="chart-controls" style="text-align: center; margin-top: 1rem;">
+                            <button id="downloadDietChart" class="download-btn">
+                                📥 Download Chart Image
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- State-wise Heatmap -->
+                    <div class="diet-heatmap-section">
+                        <h4 class="trends-chart-title">State-wise Comparison - Last 10 Days</h4>
+                        <div class="trends-heatmap-container" id="stateHeatmapContainer">
+                            <div class="trends-heatmap-placeholder">
+                                🗺️ Interactive Heatmap: States × Last 10 Days
+                                <br>Showing most recent state-wise diet cost data
                             </div>
                         </div>
                     </div>
@@ -466,6 +478,15 @@
         }
     </script>
     <script src="./script.js"></script>
+</body>
+</html>
+<!-- partial -->
+  <script src='https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&amp;display=swap'></script>
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns'></script>
+<script src='https://d3js.org/d3.v7.min.js'></script>
+<script src='https://d3js.org/topojson.v3.min.js'></script><script  src="./script.js"></script>
+
 </body>
 </html>
 <!-- partial -->
