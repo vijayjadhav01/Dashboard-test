@@ -61,7 +61,7 @@ body {
     color: white;
     height: 100%;  /* Fills flex parent height */
     overflow-y: auto;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    /* box-shadow: 2px 0 10px rgba(0,0,0,0.1); */  /* Removed shadow */
     z-index: 50;
 }
 
@@ -85,9 +85,10 @@ body {
 }
 
 .menu-item.active {
-    background: rgba(255, 255, 255, 0.15);
-    border-left-color: white;
+    background: #F5F7FA;
+    border-left-color: #F5F7FA;
     font-weight: 600;
+    color: #333;
 }
 
 .menu-icon {
@@ -386,7 +387,7 @@ body {
 .legend-gradient-bar {
     width: 120px;
     height: 10px;
-    background: linear-gradient(to right, #deebf7, #9ecae1, #6baed6, #3182bd, #08519c);
+    background: linear-gradient(to right, #A9E1FF, #88C3FF, #67A6FF, #428BEA, #0070CC);
     border: 1px solid #ccc;
     border-radius: 2px;
 }
