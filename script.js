@@ -769,16 +769,48 @@ function setupChartControls() {
     const downloadDataBtn = document.getElementById('downloadData');
     
     if (downloadBtn) {
-        downloadBtn.addEventListener('click', function() {
-            if (commodityChart) {
-                // Create a link element to trigger download
+    downloadBtn.addEventListener('click', function() {
+        if (commodityChart) {
+            // Add white background plugin temporarily
+            const backgroundPlugin = {
+                id: 'background',
+                beforeDraw: (chart) => {
+                    const ctx = chart.canvas.getContext('2d');
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, chart.canvas.width, chart.canvas.height);
+                    ctx.restore();
+                }
+            };
+            
+            // Register the plugin
+            Chart.register(backgroundPlugin);
+            
+            // Update chart options for padding
+            const originalPadding = commodityChart.options.layout?.padding || 0;
+            commodityChart.options.layout = {
+                padding: 30  // 30px padding from all sides
+            };
+            
+            // Update and render the chart
+            commodityChart.update('none');
+            
+            // Wait a moment for render, then download
+            setTimeout(() => {
                 const link = document.createElement('a');
-                link.download = `commodity-chart-${new Date().toISOString().split('T')[0]}.png`;
-                link.href = commodityChart.toBase64Image('image/png', 1.0);
+                link.download = `commodity-chart-${new Date().toISOString().split('T')[0]}.jpg`;
+                link.href = commodityChart.toBase64Image('image/jpeg', 0.95);
                 link.click();
-            }
-        });
-    }
+                
+                // Restore original settings
+                Chart.unregister(backgroundPlugin);
+                commodityChart.options.layout.padding = originalPadding;
+                commodityChart.update('none');
+            }, 100);
+        }
+    });
+}
     
     // NEW: CSV Download functionality
     if (downloadDataBtn) {
@@ -2022,11 +2054,35 @@ function setupDietChartDownload() {
                 const dateStr = new Date().toISOString().split('T')[0];
                 const filename = `diet-trends-${familySize}-${dateRange}-${dateStr}.png`;
                 
-                const link = document.createElement('a');
-                link.download = filename;
-                link.href = nationalDietChart.toBase64Image('image/png', 1.0);
-                link.click();
-            }
+                if (nationalDietChart) {
+    // Create a temporary canvas with white background
+    const originalCanvas = nationalDietChart.canvas;
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Set higher resolution and add padding
+    const padding = 40;
+    tempCanvas.width = originalCanvas.width + (padding * 2);
+    tempCanvas.height = originalCanvas.height + (padding * 2);
+    
+    // Fill with white background
+    tempCtx.fillStyle = '#FFFFFF';
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    
+    // Draw the original chart with padding offset
+    tempCtx.drawImage(originalCanvas, padding, padding);
+    
+    // Download as JPEG
+    const familySize = selectedFamilySize === 1 ? '1-person' : 'family-4';
+    const dateRange = selectedDietDateRange.replace('years', 'y').replace('year', 'y').replace('months', 'm');
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `diet-trends-${familySize}-${dateRange}-${dateStr}.jpg`;
+    
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = tempCanvas.toDataURL('image/jpeg', 0.95);
+    link.click();
+}
         });
     }
 }
