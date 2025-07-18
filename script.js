@@ -2204,12 +2204,30 @@ function generateIndiaMap(group, commodity, selectedDate = null) {
         return;
     }
     
-    const prices = commodityStateData.map(d => d.Price);
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
+    // Filter out summary/aggregate rows first
+const actualStateData = commodityStateData.filter(d => 
+    !['Average Price', 'Maximum Price', 'Minimum Price', 'Modal Price'].includes(d.State)
+);
+
+const prices = actualStateData.map(d => d.Price);
+const minPrice = Math.min(...prices);
+const maxPrice = Math.max(...prices);
     
-    const colorScale = d3.scaleSequential(d3.interpolateBlues)
-        .domain([minPrice, maxPrice]);
+    const colorScale = d3.scaleLinear()
+    .domain([
+        minPrice, 
+        minPrice + (maxPrice - minPrice) * 0.25,
+        minPrice + (maxPrice - minPrice) * 0.5,
+        minPrice + (maxPrice - minPrice) * 0.75,
+        maxPrice
+    ])
+    .range([
+        '#A9E1FF',  // Lightest blue (far right)
+        '#88C3FF',  // Light blue
+        '#67A6FF',  // Medium blue  
+        '#428BEA',  // Dark blue
+        '#0070CC'   // Darkest blue (your brand color)
+    ]);
     
     const width = mapContainer.clientWidth || 600;
     const height = mapContainer.clientHeight || 400;
@@ -2236,7 +2254,7 @@ function generateIndiaMap(group, commodity, selectedDate = null) {
         .attr('class', 'state-path')
         .attr('fill', d => {
             const stateName = d.properties.ST_NM || d.properties.NAME_1 || d.properties.name;
-            const stateDataEntry = commodityStateData.find(sd => {
+            const stateDataEntry = actualStateData.find(sd => {
                 const mappedName = getMapStateName(sd.State);
                 return mappedName === stateName || sd.State === stateName;
             });
@@ -2248,7 +2266,7 @@ function generateIndiaMap(group, commodity, selectedDate = null) {
         })
         .on('mouseover', function(event, d) {
             const stateName = d.properties.ST_NM || d.properties.NAME_1 || d.properties.name;
-            const stateDataEntry = commodityStateData.find(sd => {
+            const stateDataEntry = actualStateData.find(sd => {
                 const mappedName = getMapStateName(sd.State);
                 return mappedName === stateName || sd.State === stateName;
             });
@@ -2281,9 +2299,9 @@ function createGradientLegend(minPrice, maxPrice) {
     const legendHTML = `
         <div class="legend-title">Price Range (Rs/kg)</div>
         <div class="legend-bar-container">
-            <span class="legend-min">Rs ${minPrice.toFixed(0)}</span>
+            <span class="legend-min">Rs ${minPrice.toFixed(2)}</span>
             <div class="legend-gradient-bar"></div>
-            <span class="legend-max">Rs ${maxPrice.toFixed(0)}</span>
+            <span class="legend-max">Rs ${maxPrice.toFixed(2)}</span>
         </div>
     `;
     legendContainer.innerHTML = legendHTML;
