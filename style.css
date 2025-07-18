@@ -583,262 +583,444 @@ body {
     font-size: 0.9rem;
 }
 
-/* Diet Cost Calculator */
+/* ============================================================================ */
+/* DIET CALCULATOR - NEW REDESIGNED STYLES                                    */
+/* ============================================================================ */
+
+/* Hide/Remove old diet calculator styles */
 .diet-cost-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-top: 1rem;
+    display: none !important;
 }
 
-.diet-summary {
-    padding: 1rem;
+.diet-summary,
+.diet-breakdown {
+    display: none !important;
+}
+
+.trends-container {
+    display: none !important;
+}
+
+.trends-left-column,
+.trends-right-column,
+.trends-filters,
+.trends-national-chart {
+    display: none !important;
+}
+
+/* NEW DIET COST SUMMARY SECTION */
+.diet-cost-summary {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding: 2rem;
     background: #f8f9fa;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.data-info {
-    margin-bottom: 1rem;
+.data-date-info {
+    margin-bottom: 2rem;
 }
 
-.data-date {
-    font-size: 0.9rem;
+.data-date-label {
+    font-size: 1.1rem;
     color: #0070CC;
     font-weight: 600;
 }
 
-.cost-table {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+.cost-summary-table {
+    max-width: 650px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.cost-header {
+.cost-summary-header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1.5fr 1fr 1.3fr;
     gap: 1rem;
-    padding: 0.5rem 0;
-    border-bottom: 2px solid #0070CC;
-    font-weight: 600;
+    padding: 0 0 0.5rem 0;
+    border-bottom: 1px solid #0070CC;
+    margin-bottom: 0.5rem;
+}
+
+.cost-type-header {
+    /* Empty header cell for alignment */
+}
+
+.person-header,
+.family-header {
+    font-size: 1rem;
+    font-weight: 700;
     color: #0070CC;
-    font-size: 0.9rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.cost-row {
+.cost-summary-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
+    grid-template-columns: 1.5fr 1fr 1.3fr;
+    gap: 1.5rem;
     padding: 0.5rem 0;
     align-items: center;
+    border-bottom: 1px solid #e9ecef;
 }
 
-.cost-label {
+.cost-summary-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.cost-type-label {
+    font-size: 1rem;
     font-weight: 600;
     color: #333;
-    font-size: 0.9rem;
+    text-align: left;
 }
 
-.person-cost, .family-cost {
+.person-cost-value,
+.family-cost-value {
+    font-size: 1.1rem;
     font-weight: bold;
     color: #0070CC;
-    font-size: 0.9rem;
     text-align: center;
 }
 
-.person-col, .family-col {
+/* COMBINED DIET INFORMATION CONTAINER */
+.diet-breakdown-section {
     text-align: center;
-    font-size: 0.85rem;
-}
-
-.cost-separator {
-    border-top: 1px solid #e9ecef;
-    margin: 1.5rem 0 1rem 0;
-    width: 100%;
-}
-
-.calculation-info {
-    margin-top: 1rem;
-}
-
-.calculation-title {
-    color: #0070CC;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.calculation-text p {
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-    line-height: 1.5;
-}
-
-.requirements-paragraph {
-    font-size: 0.8rem;
-    color: #333;
-}
-
-.calculation-note {
-    font-size: 0.75rem;
-    color: #666;
-}
-
-.diet-breakdown {
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 8px;
+    margin-bottom: 2.5rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
     border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.breakdown-title {
+/* Latest Data Section */
+.data-date-info {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.data-date-label {
+    font-size: 1.1rem;
     color: #0070CC;
-    font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 1rem;
 }
 
-.breakdown-list {
+/* Breakdown Title */
+.breakdown-section-title {
+    color: #0070CC;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 2.5rem;        
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* SINGLE LINE HORIZONTAL BREAKDOWN */
+.breakdown-items-horizontal {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+.breakdown-item-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.8rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    min-width: 110px;
+    flex: 1;
+    max-width: 140px;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    justify-content: center;
+    gap: 0.2rem;
 }
 
-.breakdown-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.3rem 0;
+.breakdown-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 112, 204, 0.1);
+    border-color: #0070CC;
 }
 
-.item-name {
+.item-category {
     font-size: 0.85rem;
+    font-weight: 600;
     color: #333;
-    flex: 1;
+    line-height: 1.1;
+}
+
+.item-amount {
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
 }
 
 .item-cost {
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: bold;
     color: #0070CC;
-    font-size: 0.85rem;
-    text-align: right;
+    margin-top: 0.1rem;
 }
 
-.breakdown-divider {
-    height: 1px;
-    background: #dee2e6;
-    margin: 0.5rem 0;
+/* BREAKDOWN TOTAL SECTION */
+.breakdown-total-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.total-separator {
+    display: none;
 }
 
 .breakdown-total {
-    border-top: 2px solid #0070CC;
-    padding-top: 0.5rem;
-    margin-top: 0.5rem;
-    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #0070CC;
+    max-width: 300px;
+    margin: 0 auto;
 }
 
-.breakdown-total .item-name,
-.breakdown-total .item-cost {
+.total-label {
+    font-size: 1.1rem;
     font-weight: bold;
-    font-size: 0.9rem;
     color: #0070CC;
 }
 
-/* Diet Cost Trends Analysis */
-.trends-container {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    gap: 2rem;
-    margin-top: 1rem;
+.total-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #0070CC;
 }
 
-.trends-left-column {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    height: fit-content;
-    max-height: 600px;
+/* CALCULATION METHODOLOGY SECTION - NOW INSIDE SAME CONTAINER */
+.calculation-methodology {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
 }
 
-.trends-filters {
-    background: #f8f9fa;
-    border-radius: 8px;
+.methodology-title {
+    color: #0070CC;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.methodology-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.methodology-content p {
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.requirements-text {
+    font-size: 0.85rem;
+    color: #333;
+    font-weight: 500;
+    text-align: center;
+}
+
+.methodology-note {
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+}
+
+.methodology-note a {
+    color: #0070CC;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.methodology-note a:hover {
+    text-decoration: underline;
+}
+
+/* RESPONSIVE DESIGN FOR SINGLE LINE */
+@media (max-width: 1024px) {
+    .breakdown-items-horizontal {
+        gap: 0.6rem;
+    }
+    
+    .breakdown-item-card {
+        min-width: 100px;
+        max-width: 120px;
+        padding: 0.7rem;
+    }
+    
+    .item-category {
+        font-size: 0.8rem;
+    }
+    
+    .item-amount {
+        font-size: 0.7rem;
+    }
+    
+    .item-cost {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .breakdown-items-horizontal {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .breakdown-item-card {
+        min-width: 200px;
+        max-width: 300px;
+        flex: none;
+    }
+    
+    .breakdown-total {
+        flex-direction: column;
+        gap: 0.5rem;
+        max-width: 250px;
+    }
+    
+    .total-label,
+    .total-value {
+        font-size: 1rem;
+    }
+    
+    .methodology-content p {
+        font-size: 0.85rem;
+    }
+    
+    .requirements-text {
+        font-size: 0.8rem;
+    }
+    
+    .methodology-note {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .breakdown-items-horizontal {
+        gap: 0.5rem;
+    }
+    
+    .breakdown-item-card {
+        min-width: 150px;
+        max-width: 200px;
+        padding: 0.6rem;
+    }
+    
+    .item-category {
+        font-size: 0.75rem;
+    }
+    
+    .item-amount {
+        font-size: 0.65rem;
+    }
+    
+    .item-cost {
+        font-size: 0.8rem;
+    }
+}
+
+/* DIET TRENDS CONTROLS */
+.diet-trends-controls {
+    text-align: center;
+    margin-bottom: 2rem;
     padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
     border: 1px solid #e9ecef;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.trends-filter-group {
+.family-size-filter,
+.date-range-filter {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.8rem;
+    align-items: center;
 }
 
-.trends-filter-label {
-    font-size: 0.9rem;
+.filter-label {
+    font-size: 1rem;
     font-weight: 600;
     color: #0070CC;
-    margin-bottom: 0.3rem;
 }
 
-.trends-filter-select {
-    padding: 0.7rem;
-    border: 2px solid #0070CC;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    background: white;
-    width: 100%;
-    cursor: pointer;
-    outline: none;
-}
-
-.trends-filter-select:focus {
-    border-color: #0056b3;
-    box-shadow: 0 0 0 2px rgba(0, 112, 204, 0.1);
-}
-
-.trends-filter-buttons {
+.family-size-buttons,
+.date-range-buttons {
     display: flex;
     gap: 0.5rem;
-    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-.trends-filter-btn {
-    padding: 0.7rem 1rem;
-    border: 2px solid #0070CC;
+.family-size-btn,
+.date-range-btn {
     background: white;
-    color: #0070CC;
+    border: 2px solid #0070CC;
     border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9rem;
     font-weight: 500;
+    color: #0070CC;
+    cursor: pointer;
     transition: all 0.2s;
-    flex: 1;
-    text-align: center;
+    white-space: nowrap;
 }
 
-.trends-filter-btn.active {
+.family-size-btn:hover,
+.date-range-btn:hover {
     background: #0070CC;
     color: white;
 }
 
-.trends-filter-btn:hover {
-    background: #0056b3;
+.family-size-btn.active,
+.date-range-btn.active {
+    background: #0070CC;
     color: white;
-    border-color: #0056b3;
 }
 
-.trends-national-chart {
-    background: #f8f9fa;
-    border-radius: 8px;
+/* DIET TRENDS CHART SECTION */
+.diet-trends-chart-section {
+    margin-bottom: 2rem;
     padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
     border: 1px solid #e9ecef;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    height: 400px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .trends-chart-title {
@@ -846,17 +1028,15 @@ body {
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    text-align: left;
+    text-align: center;
     border-bottom: 2px solid #0070CC;
     padding-bottom: 0.5rem;
 }
 
 .trends-chart-container {
-    flex-grow: 1;
     position: relative;
-    min-height: 250px;
-    max-height: 300px;
-    height: 280px;
+    height: 350px;
+    margin-bottom: 3rem;
 }
 
 .trends-chart-container canvas {
@@ -864,29 +1044,22 @@ body {
     height: 100% !important;
 }
 
-.trends-right-column {
-    display: flex;
-    flex-direction: column;
-}
-
-.trends-heatmap-section {
-    background: #f8f9fa;
-    border-radius: 8px;
+/* DIET HEATMAP SECTION */
+.diet-heatmap-section {
     padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
     border: 1px solid #e9ecef;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .trends-heatmap-container {
-    flex-grow: 1;
-    position: relative;
+    margin-top: 1rem;
     min-height: 400px;
 }
 
 .trends-heatmap-placeholder {
-    background: white;
+    background: #f8f9fa;
     border: 2px dashed #dee2e6;
     border-radius: 6px;
     height: 100%;
@@ -1239,14 +1412,26 @@ body {
         gap: 1.5rem;
     }
     
-    .trends-container {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+    .breakdown-items-horizontal {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 0.8rem;
     }
     
-    .diet-cost-container {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+    .diet-trends-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .family-size-buttons,
+    .date-range-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .family-size-btn,
+    .date-range-btn {
+        width: 100%;
+        max-width: 300px;
     }
 }
 
@@ -1313,44 +1498,64 @@ body {
         width: 100%;
     }
     
-    .cost-header,
-    .cost-row {
+    /* NEW: Mobile responsive for diet calculator */
+    .cost-summary-header,
+    .cost-summary-row {
         grid-template-columns: 1.2fr 0.8fr 1fr;
         gap: 0.5rem;
-    }
-    
-    .person-col,
-    .family-col {
-        font-size: 0.8rem;
-    }
-    
-    .cost-label,
-    .person-cost,
-    .family-cost {
         font-size: 0.85rem;
     }
     
-    .breakdown-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.2rem;
+    .breakdown-items-horizontal {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+    
+    .breakdown-item-card {
+        min-height: 90px;
+        padding: 0.8rem;
+    }
+    
+    .item-category {
+        font-size: 0.8rem;
+    }
+    
+    .item-amount {
+        font-size: 0.7rem;
     }
     
     .item-cost {
-        text-align: left;
+        font-size: 0.9rem;
     }
     
-    .trends-filter-buttons {
+    .breakdown-total {
         flex-direction: column;
         gap: 0.5rem;
     }
     
-    .trends-filter-btn {
-        width: 100%;
+    .total-label,
+    .total-value {
+        font-size: 1rem;
+    }
+    
+    .methodology-content {
+        text-align: center;
+    }
+    
+    .methodology-content p {
+        font-size: 0.85rem;
+    }
+    
+    .requirements-text {
+        font-size: 0.8rem;
+    }
+    
+    .methodology-note {
+        font-size: 0.75rem;
     }
     
     .trends-chart-container {
-        min-height: 200px;
+        height: 250px;
     }
     
     .trends-heatmap-container {
@@ -1367,6 +1572,7 @@ body {
     }
 }
 
+/* Hide KPI Current - Keep at end */
 #kpiCurrent {
     display: none !important;
 }
