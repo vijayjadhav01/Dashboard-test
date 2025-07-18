@@ -528,14 +528,14 @@ body {
     height: 100% !important;
 }
 
-/* Combined Averages Section */
+/* Combined Averages Section - UPDATED FOR VERTICAL LAYOUT */
 .combined-averages-section {
     margin-bottom: 2rem;
 }
 
 .averages-horizontal-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
     margin-top: 1rem;
 }
@@ -545,6 +545,7 @@ body {
     border-radius: 8px;
     padding: 1rem;
     border: 1px solid #e9ecef;
+    width: 100%;
 }
 
 .averages-subtitle {
@@ -563,7 +564,7 @@ body {
     border-radius: 6px;
     padding: 0.5rem;
     border: 1px solid #dee2e6;
-    min-height: 300px;
+    min-height: 400px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -979,34 +980,53 @@ body {
 
 /* About Section */
 .about-content {
-    text-align: left;
-    padding: 2rem;
+    text-align: left !important;
+    padding: 1rem !important;
 }
 
-.about-placeholder h4 {
+.about-text {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+.about-text p {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    color: #333;
+    text-align: justify;
+}
+
+.about-text p.note {
+    background: #f8f9fa;
+    border-left: 4px solid #0070CC;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 2rem;
+    font-style: italic;
+    color: #0056b3;
+}
+
+.about-text a {
     color: #0070CC;
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
 }
 
-.about-placeholder ul {
-    list-style: none;
-    text-align: left;
-    display: inline-block;
-    color: #666;
+.about-text a:hover {
+    color: #0056b3;
+    border-bottom-color: #0056b3;
 }
 
-.about-placeholder li {
-    margin-bottom: 0.5rem;
-    padding-left: 1rem;
-    position: relative;
-}
-
-.about-placeholder li:before {
-    content: "•";
+.about-text a:visited {
     color: #0070CC;
-    position: absolute;
-    left: 0;
+}
+
+/* Hide the old placeholder */
+.about-placeholder {
+    display: none;
 }
 
 /* Summary Section */
@@ -1349,55 +1369,4 @@ body {
 
 #kpiCurrent {
     display: none !important;
-}
-
-/* Updated About Section Styles */
-.about-content {
-    text-align: left;
-    padding: 1rem;
-}
-
-.about-text {
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.8;
-}
-
-.about-text p {
-    margin-bottom: 1.5rem;
-    font-size: 1rem;
-    color: #333;
-    text-align: justify;
-}
-
-.about-text p.note {
-    background: #f8f9fa;
-    border-left: 4px solid #0070CC;
-    padding: 1rem;
-    border-radius: 6px;
-    margin-top: 2rem;
-    font-style: italic;
-    color: #0056b3;
-}
-
-.about-text a {
-    color: #0070CC;
-    text-decoration: none;
-    font-weight: 600;
-    border-bottom: 1px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.about-text a:hover {
-    color: #0056b3;
-    border-bottom-color: #0056b3;
-}
-
-.about-text a:visited {
-    color: #0070CC;
-}
-
-/* Hide the old placeholder */
-.about-placeholder {
-    display: none;
 }
