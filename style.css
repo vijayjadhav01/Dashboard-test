@@ -1350,3 +1350,54 @@ body {
 #kpiCurrent {
     display: none !important;
 }
+
+/* Updated About Section Styles */
+.about-content {
+    text-align: left;
+    padding: 1rem;
+}
+
+.about-text {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+.about-text p {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    color: #333;
+    text-align: justify;
+}
+
+.about-text p.note {
+    background: #f8f9fa;
+    border-left: 4px solid #0070CC;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 2rem;
+    font-style: italic;
+    color: #0056b3;
+}
+
+.about-text a {
+    color: #0070CC;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.about-text a:hover {
+    color: #0056b3;
+    border-bottom-color: #0056b3;
+}
+
+.about-text a:visited {
+    color: #0070CC;
+}
+
+/* Hide the old placeholder */
+.about-placeholder {
+    display: none;
+}
