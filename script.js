@@ -11,8 +11,8 @@ let selectedGroup = null;
 let selectedDateRange = 'all';
 let currentSection = 'state-map';
 
-// Diet Trends Variables
-let selectedTrendsYear = '2024';
+// NEW: Diet Trends Variables (Updated)
+let selectedDietDateRange = '3years';  // Default to Last 3 Years
 let selectedFamilySize = 4;
 
 // Commodity groups mapping
@@ -44,6 +44,15 @@ const STATE_NAME_MAPPINGS = {
     "Delhi": "National Capital Territory of Delhi"
 };
 
+// NEW: Date Range Mappings for Diet Trends
+const DIET_DATE_RANGES = {
+    '6months': 6,
+    '1year': 12,
+    '3years': 36,
+    '6years': 72,
+    'all': null
+};
+
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
@@ -70,7 +79,7 @@ async function initializeDashboard() {
         setupEventListeners();
         setupChartControls();
         setupMapControls();
-        setupTrendsControls();
+        setupDietTrendsControls();  // Updated function name
         populateDateFilter();
         updateSummaryCards();
         updateDietCostDisplay();
@@ -78,7 +87,7 @@ async function initializeDashboard() {
         // Auto-initialize with proper event handling
         await initializeDefaultSelections();
         
-        // Initialize diet trends
+        // Initialize diet trends with new logic
         initializeDietTrends();
         
         hideLoading();
@@ -170,7 +179,7 @@ function handleSectionSwitch(sectionName) {
         case 'diet-calculator':
             // Update diet cost display
             updateDietCostDisplay();
-            updateTrendsCharts();
+            updateDietTrendsCharts();  // Updated function name
             generateStateHeatmap();
             break;
             
@@ -184,65 +193,79 @@ function handleSectionSwitch(sectionName) {
     }
 }
 
-// Update Top 5 High/Low States
-function updateTopStates(commodity, selectedDate = null) {
-    if (!stateData || stateData.length === 0) {
-        document.getElementById('highPricesList').innerHTML = '<div class="states-loading">No state data available</div>';
-        document.getElementById('lowPricesList').innerHTML = '<div class="states-loading">No state data available</div>';
-        return;
+// Update Current Date
+function updateCurrentDate() {
+    const now = new Date();
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    const dateElement = document.getElementById('currentDate');
+    if (dateElement) {
+        dateElement.textContent = now.toLocaleDateString('en-US', options);
     }
+}
 
-    let commodityStateData;
+// NEW: Get Complete Months Only (Excludes incomplete current month)
+function getCompleteMonthsOnly(data) {
+    if (!data || data.length === 0) return [];
     
-    if (selectedDate) {
-        const targetDate = new Date(selectedDate + 'T00:00:00');
-        commodityStateData = stateData.filter(d => {
-            const dataDate = new Date(d.Date.toISOString().split('T')[0] + 'T00:00:00');
-            return d.Commodity === commodity && dataDate.getTime() === targetDate.getTime();
-        });
-    } else {
-        const latestDate = new Date(Math.max(...stateData.map(d => d.Date.getTime())));
-        commodityStateData = stateData.filter(d => 
-            d.Commodity === commodity && d.Date.getTime() === latestDate.getTime()
-        );
-    }
-
-    // Filter out summary rows
-    const actualStates = commodityStateData.filter(d => 
-        !['Average Price', 'Maximum Price', 'Minimum Price', 'Modal Price'].includes(d.State)
-    );
-
-    if (actualStates.length === 0) {
-        document.getElementById('highPricesList').innerHTML = '<div class="states-loading">No data available for selected commodity</div>';
-        document.getElementById('lowPricesList').innerHTML = '<div class="states-loading">No data available for selected commodity</div>';
-        return;
-    }
-
-    // Sort states by price
-    const sortedStates = [...actualStates].sort((a, b) => b.Price - a.Price);
+    // Get current date
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-indexed
     
-    // Top 5 highest prices
-    const top5High = sortedStates.slice(0, 5);
-    const highPricesHTML = top5High.map((state, index) => `
-        <div class="state-item">
-            <span class="state-rank">${index + 1}.</span>
-            <span class="state-name">${state.State}</span>
-            <span class="state-price">Rs ${state.Price.toFixed(2)}</span>
-        </div>
-    `).join('');
+    // Filter out current month data (incomplete)
+    return data.filter(item => {
+        const itemDate = new Date(item.Date);
+        const itemYear = itemDate.getFullYear();
+        const itemMonth = itemDate.getMonth();
+        
+        // Exclude current month if it's not complete
+        if (itemYear === currentYear && itemMonth === currentMonth) {
+            return false;
+        }
+        
+        return true;
+    });
+}
 
-    // Top 5 lowest prices
-    const top5Low = sortedStates.slice(-5).reverse();
-    const lowPricesHTML = top5Low.map((state, index) => `
-        <div class="state-item">
-            <span class="state-rank">${index + 1}.</span>
-            <span class="state-name">${state.State}</span>
-            <span class="state-price">Rs ${state.Price.toFixed(2)}</span>
-        </div>
-    `).join('');
+// NEW: Filter Data by Date Range for Diet Trends
+function filterDataByDateRange(data, rangeKey) {
+    if (!data || data.length === 0) return [];
+    if (rangeKey === 'all') return getCompleteMonthsOnly(data);
+    
+    const monthsBack = DIET_DATE_RANGES[rangeKey];
+    if (!monthsBack) return getCompleteMonthsOnly(data);
+    
+    // Calculate cutoff date
+    const endDate = new Date();
+    endDate.setDate(1); // First day of current month
+    const startDate = new Date(endDate);
+    startDate.setMonth(startDate.getMonth() - monthsBack);
+    
+    // Filter data and exclude incomplete current month
+    const completeData = getCompleteMonthsOnly(data);
+    return completeData.filter(item => {
+        const itemDate = new Date(item.Date);
+        return itemDate >= startDate && itemDate < endDate;
+    });
+}
 
-    document.getElementById('highPricesList').innerHTML = highPricesHTML;
-    document.getElementById('lowPricesList').innerHTML = lowPricesHTML;
+// NEW: Get Date Range Display Text
+function getDateRangeDisplayText(rangeKey, familySize) {
+    const sizeText = familySize === 1 ? '1 Person' : 'Family (4 Persons)';
+    
+    switch(rangeKey) {
+        case '6months': return `Last 6 Months - ${sizeText}`;
+        case '1year': return `Last Year - ${sizeText}`;
+        case '3years': return `Last 3 Years - ${sizeText}`;
+        case '6years': return `Last 6 Years - ${sizeText}`;
+        case 'all': return `All Time - ${sizeText}`;
+        default: return `Diet Cost Trends - ${sizeText}`;
+    }
 }
 
 // Better initialization without timeouts
@@ -274,18 +297,36 @@ async function initializeDefaultSelections() {
     });
 }
 
-function updateCurrentDate() {
-    const now = new Date();
-    const options = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-    };
-    const dateElement = document.getElementById('currentDate');
-    if (dateElement) {
-        dateElement.textContent = now.toLocaleDateString('en-US', options);
+// Utility Functions
+function showLoading(message) {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingText = document.getElementById('loadingText');
+    if (loadingOverlay) {
+        if (loadingText) loadingText.textContent = message;
+        loadingOverlay.style.display = 'flex';
     }
+}
+
+function hideLoading() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+    }
+}
+
+function showError(message) {
+    const mainContainer = document.querySelector('.main-content');
+    if (!mainContainer) return;
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `
+        <strong>Error:</strong> ${message}<br><br>
+        <button onclick="location.reload()" style="background: #0070CC; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+            Reload Page
+        </button>
+    `;
+    mainContainer.appendChild(errorDiv);
 }
 
 // Better error handling for data loading
@@ -519,6 +560,172 @@ function parseStateDataFromCSV(csvText) {
     return data;
 }
 
+// Update Top 5 High/Low States
+function updateTopStates(commodity, selectedDate = null) {
+    if (!stateData || stateData.length === 0) {
+        document.getElementById('highPricesList').innerHTML = '<div class="states-loading">No state data available</div>';
+        document.getElementById('lowPricesList').innerHTML = '<div class="states-loading">No state data available</div>';
+        return;
+    }
+
+    let commodityStateData;
+    
+    if (selectedDate) {
+        const targetDate = new Date(selectedDate + 'T00:00:00');
+        commodityStateData = stateData.filter(d => {
+            const dataDate = new Date(d.Date.toISOString().split('T')[0] + 'T00:00:00');
+            return d.Commodity === commodity && dataDate.getTime() === targetDate.getTime();
+        });
+    } else {
+        const latestDate = new Date(Math.max(...stateData.map(d => d.Date.getTime())));
+        commodityStateData = stateData.filter(d => 
+            d.Commodity === commodity && d.Date.getTime() === latestDate.getTime()
+        );
+    }
+
+    // Filter out summary rows
+    const actualStates = commodityStateData.filter(d => 
+        !['Average Price', 'Maximum Price', 'Minimum Price', 'Modal Price'].includes(d.State)
+    );
+
+    if (actualStates.length === 0) {
+        document.getElementById('highPricesList').innerHTML = '<div class="states-loading">No data available for selected commodity</div>';
+        document.getElementById('lowPricesList').innerHTML = '<div class="states-loading">No data available for selected commodity</div>';
+        return;
+    }
+
+    // Sort states by price
+    const sortedStates = [...actualStates].sort((a, b) => b.Price - a.Price);
+    
+    // Top 5 highest prices
+    const top5High = sortedStates.slice(0, 5);
+    const highPricesHTML = top5High.map((state, index) => `
+        <div class="state-item">
+            <span class="state-rank">${index + 1}.</span>
+            <span class="state-name">${state.State}</span>
+            <span class="state-price">Rs ${state.Price.toFixed(2)}</span>
+        </div>
+    `).join('');
+
+    // Top 5 lowest prices
+    const top5Low = sortedStates.slice(-5).reverse();
+    const lowPricesHTML = top5Low.map((state, index) => `
+        <div class="state-item">
+            <span class="state-rank">${index + 1}.</span>
+            <span class="state-name">${state.State}</span>
+            <span class="state-price">Rs ${state.Price.toFixed(2)}</span>
+        </div>
+    `).join('');
+
+    document.getElementById('highPricesList').innerHTML = highPricesHTML;
+    document.getElementById('lowPricesList').innerHTML = lowPricesHTML;
+}
+
+// Summary Cards
+function updateSummaryCards() {
+    const latestData = getLatestData();
+    const previousData = getPreviousData();
+    
+    const summaryGrid = document.getElementById('summaryGrid');
+    const summaryTitle = document.getElementById('summaryTitle');
+    
+    if (!summaryGrid) return;
+    
+    if (latestData.length === 0) {
+        summaryGrid.innerHTML = '<div class="loading-message">Loading market data...</div>';
+        return;
+    }
+    
+    const latestDate = latestData[0].Date;
+    const formattedDate = latestDate.toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    if (summaryTitle) {
+        summaryTitle.textContent = `Latest Prices (${formattedDate})`;
+    }
+    
+    const commodityCards = latestData.map(item => {
+        const prevItem = previousData.find(p => p.Commodity === item.Commodity);
+        let changeText = '';
+        let changeClass = '';
+        
+        if (prevItem) {
+            const change = item.Price - prevItem.Price;
+            if (Math.abs(change) >= 0.01) {
+                const sign = change > 0 ? '+' : '';
+                const arrow = change > 0 ? ' ↗️' : ' ↘️';
+                changeText = `${sign}₹${change.toFixed(2)}${arrow}`;
+                changeClass = change > 0 ? 'positive' : 'negative';
+            } else {
+                changeText = '--';
+                changeClass = '';
+            }
+        } else {
+            changeText = '--';
+            changeClass = '';
+        }
+        
+        return `
+            <div class="summary-card">
+                <div class="commodity-name">${item.Commodity}</div>
+                <div class="commodity-price">Rs ${item.Price.toFixed(2)}/kg</div>
+                <div class="price-change ${changeClass}">${changeText}</div>
+            </div>
+        `;
+    }).join('');
+    
+    summaryGrid.innerHTML = commodityCards;
+    updateDietCostDisplay();
+}
+
+// Better null checks for data functions
+function getLatestData() {
+    if (!rawData || rawData.length === 0) return [];
+    const latestDate = new Date(Math.max(...rawData.map(d => d.Date.getTime())));
+    return rawData.filter(d => d.Date.getTime() === latestDate.getTime());
+}
+
+function getPreviousData() {
+    if (!rawData || rawData.length === 0) return [];
+    const dates = [...new Set(rawData.map(d => d.Date.getTime()))].sort((a, b) => b - a);
+    if (dates.length < 2) return [];
+    const previousDate = new Date(dates[1]);
+    return rawData.filter(d => d.Date.getTime() === previousDate.getTime());
+}
+
+function populateDateFilter() {
+    const mapDateSelect = document.getElementById('mapDate');
+    if (!mapDateSelect) return;
+    
+    // Check if state data is available
+    if (!stateData || stateData.length === 0) {
+        // Set a default date or disable the date input
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        mapDateSelect.value = formattedDate;
+        mapDateSelect.disabled = true;
+        return;
+    }
+    
+    const uniqueDates = [...new Set(stateData.map(d => d.Date.getTime()))]
+        .sort((a, b) => b - a)
+        .map(timestamp => new Date(timestamp));
+    
+    if (uniqueDates.length > 0) {
+        const latestDate = uniqueDates[0];
+        const formattedDate = latestDate.toISOString().split('T')[0];
+        mapDateSelect.value = formattedDate;
+        
+        const oldestDate = uniqueDates[uniqueDates.length - 1];
+        mapDateSelect.min = oldestDate.toISOString().split('T')[0];
+        mapDateSelect.max = latestDate.toISOString().split('T')[0];
+        mapDateSelect.disabled = false;
+    }
+}
+
 // Event Listeners Setup
 function setupEventListeners() {
     // Group tab navigation
@@ -625,496 +832,6 @@ function downloadCommodityData() {
     
     // Cleanup
     window.URL.revokeObjectURL(url);
-}
-
-function setupMapControls() {
-    const mapDateSelect = document.getElementById('mapDate');
-    const mapGroupSelect = document.getElementById('mapGroup');
-    const mapCommoditySelect = document.getElementById('mapCommodity');
-    const mapSearchBtn = document.getElementById('mapSearch');
-    
-    if (!mapDateSelect || !mapGroupSelect || !mapCommoditySelect || !mapSearchBtn) {
-        console.warn('Map controls not found');
-        return;
-    }
-    
-    mapDateSelect.addEventListener('change', function() {
-        if (mapGroupSelect.value && mapCommoditySelect.value) {
-            mapSearchBtn.disabled = false;
-        }
-        
-        // Auto-update top states when date changes
-        if (mapCommoditySelect.value) {
-            updateTopStates(mapCommoditySelect.value, this.value);
-        }
-    });
-    
-    mapGroupSelect.addEventListener('change', function() {
-        const selectedGroup = this.value;
-        
-        if (selectedGroup && COMMODITY_GROUPS[selectedGroup]) {
-            const commodities = COMMODITY_GROUPS[selectedGroup];
-            mapCommoditySelect.innerHTML = '<option value="">Select commodity</option>' +
-                commodities.map(commodity => `<option value="${commodity}">${commodity}</option>`).join('');
-            mapCommoditySelect.disabled = false;
-        } else {
-            mapCommoditySelect.innerHTML = '<option value="">Select commodity</option>';
-            mapCommoditySelect.disabled = true;
-            mapSearchBtn.disabled = true;
-        }
-        
-        mapCommoditySelect.value = '';
-        mapSearchBtn.disabled = true;
-        
-        // Clear top states
-        document.getElementById('highPricesList').innerHTML = '<div class="states-loading">Select commodity to view data</div>';
-        document.getElementById('lowPricesList').innerHTML = '<div class="states-loading">Select commodity to view data</div>';
-    });
-    
-    mapCommoditySelect.addEventListener('change', function() {
-        mapSearchBtn.disabled = !this.value;
-        
-        // Auto-update KPIs and top states when commodity is selected
-        if (this.value) {
-            updateKPIs(this.value, mapDateSelect.value);
-            updateTopStates(this.value, mapDateSelect.value);
-        }
-    });
-    
-    mapSearchBtn.addEventListener('click', function() {
-        const selectedDate = mapDateSelect.value;
-        const selectedGroup = mapGroupSelect.value;
-        const selectedCommodity = mapCommoditySelect.value;
-        
-        if (selectedGroup && selectedCommodity) {
-            generateIndiaMap(selectedGroup, selectedCommodity, selectedDate);
-            updateTopStates(selectedCommodity, selectedDate);
-        }
-    });
-}
-
-// Setup Diet Trends Controls
-function setupTrendsControls() {
-    const yearSelector = document.getElementById('trendsYearSelector');
-    const familySizeButtons = document.querySelectorAll('.trends-filter-btn');
-
-    // Auto-select latest year on initial setup
-    if (yearSelector) {
-        // Find all numeric years (exclude 'latest' and non-numbers)
-        const years = Array.from(yearSelector.options)
-            .map(opt => parseInt(opt.value))
-            .filter(val => !isNaN(val));
-        if (years.length > 0) {
-            const latestYear = Math.max(...years);
-            yearSelector.value = latestYear;
-            selectedTrendsYear = String(latestYear);
-            updateTrendsCharts();
-        }
-        yearSelector.addEventListener('change', function() {
-            selectedTrendsYear = this.value;
-            updateTrendsCharts();
-        });
-    }
-
-    familySizeButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Remove active from all buttons
-            familySizeButtons.forEach(b => b.classList.remove('active'));
-            // Add active to clicked button
-            this.classList.add('active');
-            // Update selected family size
-            selectedFamilySize = parseInt(this.dataset.size);
-            // Update charts
-            updateTrendsCharts();
-        });
-    });
-}
-
-// Initialize Diet Trends
-function initializeDietTrends() {
-    updateTrendsCharts();
-    generateStateHeatmap();
-}
-
-// Update Trends Charts
-function updateTrendsCharts() {
-    updateNationalDietChart();
-    updateTrendsTitle();
-}
-
-// Update Trends Chart Title
-function updateTrendsTitle() {
-    const titleElement = document.querySelector('.trends-national-chart .trends-chart-title');
-    if (titleElement) {
-        const yearText = selectedTrendsYear === 'latest' ? 'Last 12 Months' : selectedTrendsYear;
-        const sizeText = selectedFamilySize === 1 ? '1 Person' : 'Family (4 Persons)';
-        titleElement.textContent = `National Average - Monthly Trend (${yearText}) - ${sizeText}`;
-    }
-}
-
-// Update National Diet Chart with #0070CC theme
-function updateNationalDietChart() {
-    const canvas = document.getElementById('nationalDietChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    // Clean up existing chart
-    if (nationalDietChart) {
-        nationalDietChart.destroy();
-        nationalDietChart = null;
-    }
-    
-    // Calculate national diet costs
-    const nationalData = calculateNationalDietCosts(selectedTrendsYear, selectedFamilySize);
-    
-    if (nationalData.length === 0) {
-        console.warn('No data available for national diet chart');
-        return;
-    }
-    
-    nationalDietChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: nationalData.map(d => d.monthName),
-            datasets: [{
-                label: `Diet Cost (${selectedFamilySize === 1 ? '1 Person' : 'Family of 4'})`,
-                data: nationalData.map(d => d.cost),
-                borderColor: '#0070CC',
-                backgroundColor: '#0070CC20',
-                borderWidth: 3,
-                fill: false,
-                tension: 0.1,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#0070CC',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Month'
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Cost (Rs)'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return 'Rs ' + value.toLocaleString();
-                        }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `Cost: Rs ${context.parsed.y.toLocaleString()}`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Calculate National Diet Costs
-function calculateNationalDietCosts(year, familySize) {
-    if (rawData.length === 0) return [];
-    
-    let targetYear;
-    let monthsToShow = [];
-    
-    if (year === 'latest') {
-        // Show last 12 months
-        const endDate = new Date();
-        for (let i = 11; i >= 0; i--) {
-            const date = new Date(endDate.getFullYear(), endDate.getMonth() - i, 1);
-            monthsToShow.push({
-                year: date.getFullYear(),
-                month: date.getMonth(),
-                monthName: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-            });
-        }
-    } else {
-        targetYear = parseInt(year);
-        // Show 12 months of the selected year
-        for (let month = 0; month < 12; month++) {
-            const date = new Date(targetYear, month, 1);
-            monthsToShow.push({
-                year: targetYear,
-                month: month,
-                monthName: date.toLocaleDateString('en-US', { month: 'short' })
-            });
-        }
-    }
-    
-    const nationalData = [];
-    
-    monthsToShow.forEach(monthInfo => {
-        const monthData = rawData.filter(item => {
-            const itemDate = new Date(item.Date);
-            return itemDate.getFullYear() === monthInfo.year && itemDate.getMonth() === monthInfo.month;
-        });
-        
-        if (monthData.length > 0) {
-            const monthlyPrices = calculateMonthlyAveragePrices(monthData);
-            const dietCost = calculateDietCostFromPrices(monthlyPrices, familySize);
-            
-            nationalData.push({
-                month: monthInfo.month,
-                monthName: monthInfo.monthName,
-                cost: Math.round(dietCost)
-            });
-        }
-    });
-    
-    return nationalData;
-}
-
-// Calculate Monthly Average Prices
-function calculateMonthlyAveragePrices(monthData) {
-    const priceMap = {};
-    
-    // Group by commodity and calculate averages
-    const commodityGroups = {};
-    monthData.forEach(item => {
-        if (!commodityGroups[item.Commodity]) {
-            commodityGroups[item.Commodity] = [];
-        }
-        commodityGroups[item.Commodity].push(item.Price);
-    });
-    
-    // Calculate averages for each commodity
-    Object.keys(commodityGroups).forEach(commodity => {
-        const prices = commodityGroups[commodity];
-        const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
-        priceMap[commodity] = avgPrice;
-    });
-    
-    return priceMap;
-}
-
-// Calculate Diet Cost from Prices
-function calculateDietCostFromPrices(priceMap, familySize) {
-    // Calculate category averages (Rs per kg)
-    const cerealsPrice = getAveragePrice(priceMap, ['Rice', 'Wheat', 'Atta (Wheat)']);
-    const pulsesPrice = getAveragePrice(priceMap, ['Gram Dal', 'Tur/Arhar Dal', 'Urad Dal', 'Moong Dal', 'Masoor Dal']);
-    const vegetablesPrice = getAveragePrice(priceMap, ['Potato', 'Onion', 'Tomato']);
-    const oilsPrice = getAveragePrice(priceMap, ['Groundnut Oil (Packed)', 'Mustard Oil (Packed)', 'Soya Oil (Packed)', 'Sunflower Oil (Packed)']);
-    const milkPrice = priceMap['Milk @'] || 0;
-    const saltPrice = priceMap['Salt Pack (Iodised)'] || 0;
-    const sugarPrice = priceMap['Sugar'] || 0;
-    
-    // Daily requirements (in grams/ml)
-    const requirements = {
-        cereals: 250,    // grams
-        pulses: 85,      // grams  
-        vegetables: 400, // grams
-        oils: 27,        // grams
-        milk: 300,       // ml (assume same as grams)
-        salt: 5,         // grams
-        sugar: 25        // grams
-    };
-    
-    // Calculate daily cost for 1 person (convert grams to kg)
-    const dailyCost1Person = 
-        (cerealsPrice * requirements.cereals / 1000) +
-        (pulsesPrice * requirements.pulses / 1000) +
-        (vegetablesPrice * requirements.vegetables / 1000) +
-        (oilsPrice * requirements.oils / 1000) +
-        (milkPrice * requirements.milk / 1000) +
-        (saltPrice * requirements.salt / 1000) +
-        (sugarPrice * requirements.sugar / 1000);
-    
-    // Calculate monthly cost
-    const monthlyCost = dailyCost1Person * familySize * 30;
-    
-    return monthlyCost;
-}
-
-// Generate State Heatmap with #0070CC theme
-function generateStateHeatmap() {
-    const container = document.getElementById('stateHeatmapContainer');
-    if (!container || !stateData || stateData.length === 0) {
-        if (container) {
-            container.innerHTML = `
-                <div class="trends-heatmap-placeholder">
-                    📊 State-wise diet cost data not available
-                    <br>Requires recent state commodity prices
-                </div>
-            `;
-        }
-        return;
-    }
-    
-    // Get last 10 days of unique dates
-    const uniqueDates = [...new Set(stateData.map(d => d.Date.getTime()))]
-        .sort((a, b) => b - a)
-        .slice(0, 10)
-        .map(timestamp => new Date(timestamp))
-        .reverse();
-    
-    if (uniqueDates.length === 0) {
-        container.innerHTML = `
-            <div class="trends-heatmap-placeholder">
-                📊 No recent state data available
-            </div>
-        `;
-        return;
-    }
-    
-    // Get all states
-    const states = [...new Set(stateData.map(d => d.State))]
-        .filter(state => !['Average Price', 'Maximum Price', 'Minimum Price', 'Modal Price'].includes(state))
-        .sort();
-    
-    if (states.length === 0) {
-        container.innerHTML = `
-            <div class="trends-heatmap-placeholder">
-                📊 No state data found
-            </div>
-        `;
-        return;
-    }
-    
-    // Calculate diet costs for each state and date
-    const heatmapData = [];
-    states.forEach(state => {
-        const stateRow = { state: state, costs: [] };
-        
-        uniqueDates.forEach(date => {
-            const stateDataForDate = stateData.filter(d => 
-                d.State === state && d.Date.getTime() === date.getTime()
-            );
-            
-            if (stateDataForDate.length > 0) {
-                const priceMap = {};
-                stateDataForDate.forEach(item => {
-                    priceMap[item.Commodity] = item.Price;
-                });
-                
-                const dietCost = calculateDietCostFromPrices(priceMap, 4); // Always use family of 4 for heatmap
-                stateRow.costs.push(dietCost);
-            } else {
-                stateRow.costs.push(null);
-            }
-        });
-        
-        heatmapData.push(stateRow);
-    });
-    
-    // Generate heatmap HTML
-    const dateHeaders = uniqueDates.map(date => 
-        date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    );
-    
-    // Find min and max costs for color scaling
-    const allCosts = heatmapData.flatMap(row => row.costs).filter(cost => cost !== null);
-    const minCost = Math.min(...allCosts);
-    const maxCost = Math.max(...allCosts);
-    
-    let heatmapHTML = `
-        <div class="diet-heatmap">
-            <div class="header-row">
-                <div class="header-spacer"></div>
-                ${dateHeaders.map(header => `<div class="date-header">${header}</div>`).join('')}
-            </div>
-    `;
-    
-    heatmapData.forEach(row => {
-        heatmapHTML += `
-            <div class="state-row">
-                <div class="state-label">${row.state}</div>
-                ${row.costs.map(cost => {
-                    if (cost === null) {
-                        return '<div class="day-cell" style="background: #f0f0f0;" title="No data"></div>';
-                    }
-                    
-                    // Better blue gradient using #0070CC theme with numbers
-                    const intensity = (cost - minCost) / (maxCost - minCost);
-                    const roundedCost = Math.round(cost);
-                    
-                    // Create a better blue gradient from light to #0070CC
-                    let backgroundColor, textColor;
-                    
-                    if (intensity <= 0.2) {
-                        backgroundColor = `rgb(230, 245, 255)`;
-                        textColor = '#333'; // Dark text for light background
-                    } else if (intensity <= 0.4) {
-                        backgroundColor = `rgb(180, 220, 255)`;
-                        textColor = '#333';
-                    } else if (intensity <= 0.6) {
-                        backgroundColor = `rgb(120, 180, 255)`;
-                        textColor = '#fff'; // White text for medium background
-                    } else if (intensity <= 0.8) {
-                        backgroundColor = `rgb(60, 140, 220)`;
-                        textColor = '#fff';
-                    } else {
-                        backgroundColor = `rgb(0, 112, 204)`;
-                        textColor = '#fff'; // White text for dark background
-                    }
-                    
-                    return `<div class="day-cell" style="background: ${backgroundColor}; color: ${textColor}; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600;" title="${row.state}: Rs ${roundedCost.toLocaleString()}">${roundedCost}</div>`;
-                }).join('')}
-            </div>
-        `;
-    });
-    
-    heatmapHTML += '</div>';
-    
-    // Update title with date range
-    const titleElement = document.querySelector('.trends-heatmap-section .trends-chart-title');
-    if (titleElement && uniqueDates.length > 0) {
-        const startDate = uniqueDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const endDate = uniqueDates[uniqueDates.length - 1].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        titleElement.textContent = `State-wise Comparison - Last 10 Days (${startDate} - ${endDate})`;
-    }
-    
-    container.innerHTML = heatmapHTML;
-}
-
-function populateDateFilter() {
-    const mapDateSelect = document.getElementById('mapDate');
-    if (!mapDateSelect) return;
-    
-    // Check if state data is available
-    if (!stateData || stateData.length === 0) {
-        // Set a default date or disable the date input
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0];
-        mapDateSelect.value = formattedDate;
-        mapDateSelect.disabled = true;
-        return;
-    }
-    
-    const uniqueDates = [...new Set(stateData.map(d => d.Date.getTime()))]
-        .sort((a, b) => b - a)
-        .map(timestamp => new Date(timestamp));
-    
-    if (uniqueDates.length > 0) {
-        const latestDate = uniqueDates[0];
-        const formattedDate = latestDate.toISOString().split('T')[0];
-        mapDateSelect.value = formattedDate;
-        
-        const oldestDate = uniqueDates[uniqueDates.length - 1];
-        mapDateSelect.min = oldestDate.toISOString().split('T')[0];
-        mapDateSelect.max = latestDate.toISOString().split('T')[0];
-        mapDateSelect.disabled = false;
-    }
 }
 
 // Group and Commodity Selection
@@ -1806,6 +1523,514 @@ function updateDietCostDisplay() {
     if (elements.totalCost) elements.totalCost.textContent = `Rs ${dietCosts.daily.person1.toFixed(2)}`;
 }
 
+// NEW: Setup Diet Trends Controls (Updated from setupTrendsControls)
+function setupDietTrendsControls() {
+    const familySizeButtons = document.querySelectorAll('.family-size-btn');
+    const dateRangeButtons = document.querySelectorAll('.date-range-btn');
+
+    // Family size button event listeners
+    familySizeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active from all buttons
+            familySizeButtons.forEach(b => b.classList.remove('active'));
+            // Add active to clicked button
+            this.classList.add('active');
+            // Update selected family size
+            selectedFamilySize = parseInt(this.dataset.size);
+            // Update charts
+            updateDietTrendsCharts();
+        });
+    });
+
+    // Date range button event listeners
+    dateRangeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active from all buttons
+            dateRangeButtons.forEach(b => b.classList.remove('active'));
+            // Add active to clicked button
+            this.classList.add('active');
+            // Update selected date range
+            selectedDietDateRange = this.dataset.range;
+            // Update charts
+            updateDietTrendsCharts();
+        });
+    });
+}
+
+// NEW: Initialize Diet Trends (Updated)
+function initializeDietTrends() {
+    updateDietTrendsCharts();
+    generateStateHeatmap();
+}
+
+// NEW: Update Diet Trends Charts (Updated from updateTrendsCharts)
+function updateDietTrendsCharts() {
+    updateNationalDietChart();
+    updateDietTrendsTitle();
+}
+
+// NEW: Update Diet Trends Chart Title (Updated)
+function updateDietTrendsTitle() {
+    const titleElement = document.getElementById('dietTrendsChartTitle');
+    if (titleElement) {
+        const rangeText = getDateRangeDisplayText(selectedDietDateRange, selectedFamilySize);
+        titleElement.textContent = `National Average - ${rangeText}`;
+    }
+}
+
+// NEW: Update National Diet Chart with Complete Historical Data (No Year Filter)
+function updateNationalDietChart() {
+    const canvas = document.getElementById('nationalDietChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Clean up existing chart
+    if (nationalDietChart) {
+        nationalDietChart.destroy();
+        nationalDietChart = null;
+    }
+    
+    // Logo plugin for diet chart
+    const logoPlugin = {
+        id: 'logoPlugin',
+        beforeDraw: function(chart) {
+            const ctx = chart.ctx;
+            const logo = new Image();
+            logo.crossOrigin = 'anonymous';
+            logo.onload = function() {
+                const logoWidth = 100;
+                const logoHeight = 38;
+                let drawWidth = logoWidth;
+                let drawHeight = logo.height * (logoWidth / logo.width);
+                if (drawHeight > logoHeight) {
+                    drawHeight = logoHeight;
+                    drawWidth = logo.width * (logoHeight / logo.height);
+                }
+                // Place logo at bottom-right of chart
+                const padding = 60;
+                const x = chart.chartArea.right - drawWidth;
+                const y = chart.chartArea.bottom + padding;
+                ctx.save();
+                ctx.globalAlpha = 0.80;
+                ctx.drawImage(logo, x, y, drawWidth, drawHeight);
+                ctx.restore();
+            };
+            logo.src = 'https://raw.githubusercontent.com/vijayjadhav01/commodity-dashboard/main/Logo.png';
+        }
+    };
+    
+    // Calculate national diet costs using complete historical data
+    const nationalData = calculateNationalDietCosts(selectedDietDateRange, selectedFamilySize);
+    
+    if (nationalData.length === 0) {
+        console.warn('No data available for national diet chart');
+        return;
+    }
+    
+    nationalDietChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: nationalData.map(d => d.monthName),
+            datasets: [{
+                label: `Diet Cost (${selectedFamilySize === 1 ? '1 Person' : 'Family of 4'})`,
+                data: nationalData.map(d => d.cost),
+                borderColor: '#0070CC',
+                backgroundColor: '#0070CC20',
+                borderWidth: 3,
+                fill: false,
+                tension: 0.1,
+                pointRadius: 2,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#0070CC',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
+            }]
+        },
+        plugins: [logoPlugin],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+          
+           layout: {          
+            padding: {
+                bottom: 30     
+            }
+        },  
+          
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Cost (Rs)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return 'Rs ' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Cost: Rs ${context.parsed.y.toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// NEW: Calculate National Diet Costs (Updated - No Year Logic)
+function calculateNationalDietCosts(rangeKey, familySize) {
+    if (rawData.length === 0) return [];
+    
+    // Filter data by date range and exclude incomplete months
+    const filteredData = filterDataByDateRange(rawData, rangeKey);
+    if (filteredData.length === 0) return [];
+    
+    // Group by month
+    const monthlyGroups = {};
+    
+    filteredData.forEach(item => {
+        const monthKey = `${item.Date.getFullYear()}-${String(item.Date.getMonth() + 1).padStart(2, '0')}`;
+        const monthName = item.Date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            year: rangeKey === 'all' || rangeKey === '6years' ? 'numeric' : undefined 
+        });
+        
+        if (!monthlyGroups[monthKey]) {
+            monthlyGroups[monthKey] = {
+                monthName: monthName,
+                year: item.Date.getFullYear(),
+                month: item.Date.getMonth(),
+                data: []
+            };
+        }
+        
+        monthlyGroups[monthKey].data.push(item);
+    });
+    
+    const nationalData = [];
+    
+    // Calculate diet cost for each month
+    Object.keys(monthlyGroups).sort().forEach(monthKey => {
+        const monthGroup = monthlyGroups[monthKey];
+        const monthlyPrices = calculateMonthlyAveragePrices(monthGroup.data);
+        const dietCost = calculateDietCostFromPrices(monthlyPrices, familySize);
+        
+        nationalData.push({
+            month: monthGroup.month,
+            monthName: monthGroup.monthName,
+            cost: Math.round(dietCost)
+        });
+    });
+    
+    return nationalData;
+}
+
+// Calculate Monthly Average Prices
+function calculateMonthlyAveragePrices(monthData) {
+    const priceMap = {};
+    
+    // Group by commodity and calculate averages
+    const commodityGroups = {};
+    monthData.forEach(item => {
+        if (!commodityGroups[item.Commodity]) {
+            commodityGroups[item.Commodity] = [];
+        }
+        commodityGroups[item.Commodity].push(item.Price);
+    });
+    
+    // Calculate averages for each commodity
+    Object.keys(commodityGroups).forEach(commodity => {
+        const prices = commodityGroups[commodity];
+        const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+        priceMap[commodity] = avgPrice;
+    });
+    
+    return priceMap;
+}
+
+// Calculate Diet Cost from Prices
+function calculateDietCostFromPrices(priceMap, familySize) {
+    // Calculate category averages (Rs per kg)
+    const cerealsPrice = getAveragePrice(priceMap, ['Rice', 'Wheat', 'Atta (Wheat)']);
+    const pulsesPrice = getAveragePrice(priceMap, ['Gram Dal', 'Tur/Arhar Dal', 'Urad Dal', 'Moong Dal', 'Masoor Dal']);
+    const vegetablesPrice = getAveragePrice(priceMap, ['Potato', 'Onion', 'Tomato']);
+    const oilsPrice = getAveragePrice(priceMap, ['Groundnut Oil (Packed)', 'Mustard Oil (Packed)', 'Soya Oil (Packed)', 'Sunflower Oil (Packed)']);
+    const milkPrice = priceMap['Milk @'] || 0;
+    const saltPrice = priceMap['Salt Pack (Iodised)'] || 0;
+    const sugarPrice = priceMap['Sugar'] || 0;
+    
+    // Daily requirements (in grams/ml)
+    const requirements = {
+        cereals: 250,    // grams
+        pulses: 85,      // grams  
+        vegetables: 400, // grams
+        oils: 27,        // grams
+        milk: 300,       // ml (assume same as grams)
+        salt: 5,         // grams
+        sugar: 25        // grams
+    };
+    
+    // Calculate daily cost for 1 person (convert grams to kg)
+    const dailyCost1Person = 
+        (cerealsPrice * requirements.cereals / 1000) +
+        (pulsesPrice * requirements.pulses / 1000) +
+        (vegetablesPrice * requirements.vegetables / 1000) +
+        (oilsPrice * requirements.oils / 1000) +
+        (milkPrice * requirements.milk / 1000) +
+        (saltPrice * requirements.salt / 1000) +
+        (sugarPrice * requirements.sugar / 1000);
+    
+    // Calculate monthly cost
+    const monthlyCost = dailyCost1Person * familySize * 30;
+    
+    return monthlyCost;
+}
+
+// Generate State Heatmap with #0070CC theme
+function generateStateHeatmap() {
+    const container = document.getElementById('stateHeatmapContainer');
+    if (!container || !stateData || stateData.length === 0) {
+        if (container) {
+            container.innerHTML = `
+                <div class="trends-heatmap-placeholder">
+                    📊 State-wise diet cost data not available
+                    <br>Requires recent state commodity prices
+                </div>
+            `;
+        }
+        return;
+    }
+    
+    // Get last 10 days of unique dates
+    const uniqueDates = [...new Set(stateData.map(d => d.Date.getTime()))]
+        .sort((a, b) => b - a)
+        .slice(0, 10)
+        .map(timestamp => new Date(timestamp))
+        .reverse();
+    
+    if (uniqueDates.length === 0) {
+        container.innerHTML = `
+            <div class="trends-heatmap-placeholder">
+                📊 No recent state data available
+            </div>
+        `;
+        return;
+    }
+    
+    // Get all states
+    const states = [...new Set(stateData.map(d => d.State))]
+        .filter(state => !['Average Price', 'Maximum Price', 'Minimum Price', 'Modal Price'].includes(state))
+        .sort();
+    
+    if (states.length === 0) {
+        container.innerHTML = `
+            <div class="trends-heatmap-placeholder">
+                📊 No state data found
+            </div>
+        `;
+        return;
+    }
+    
+    // Calculate diet costs for each state and date
+    const heatmapData = [];
+    states.forEach(state => {
+        const stateRow = { state: state, costs: [] };
+        
+        uniqueDates.forEach(date => {
+            const stateDataForDate = stateData.filter(d => 
+                d.State === state && d.Date.getTime() === date.getTime()
+            );
+            
+            if (stateDataForDate.length > 0) {
+                const priceMap = {};
+                stateDataForDate.forEach(item => {
+                    priceMap[item.Commodity] = item.Price;
+                });
+                
+                const dietCost = calculateDietCostFromPrices(priceMap, 4); // Always use family of 4 for heatmap
+                stateRow.costs.push(dietCost);
+            } else {
+                stateRow.costs.push(null);
+            }
+        });
+        
+        heatmapData.push(stateRow);
+    });
+    
+    // Generate heatmap HTML
+    const dateHeaders = uniqueDates.map(date => 
+        date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    );
+    
+    // Find min and max costs for color scaling
+    const allCosts = heatmapData.flatMap(row => row.costs).filter(cost => cost !== null);
+    const minCost = Math.min(...allCosts);
+    const maxCost = Math.max(...allCosts);
+    
+    let heatmapHTML = `
+        <div class="diet-heatmap">
+            <div class="header-row">
+                <div class="header-spacer"></div>
+                ${dateHeaders.map(header => `<div class="date-header">${header}</div>`).join('')}
+            </div>
+    `;
+    
+    heatmapData.forEach(row => {
+        heatmapHTML += `
+            <div class="state-row">
+                <div class="state-label">${row.state}</div>
+                ${row.costs.map(cost => {
+                    if (cost === null) {
+                        return '<div class="day-cell" style="background: #f0f0f0;" title="No data"></div>';
+                    }
+                    
+                    // Better blue gradient using #0070CC theme with numbers
+                    const intensity = (cost - minCost) / (maxCost - minCost);
+                    const roundedCost = Math.round(cost);
+                    
+                    // Create a better blue gradient from light to #0070CC
+                    let backgroundColor, textColor;
+                    
+                    if (intensity <= 0.2) {
+                        backgroundColor = `rgb(230, 245, 255)`;
+                        textColor = '#333'; // Dark text for light background
+                    } else if (intensity <= 0.4) {
+                        backgroundColor = `rgb(180, 220, 255)`;
+                        textColor = '#333';
+                    } else if (intensity <= 0.6) {
+                        backgroundColor = `rgb(120, 180, 255)`;
+                        textColor = '#fff'; // White text for medium background
+                    } else if (intensity <= 0.8) {
+                        backgroundColor = `rgb(60, 140, 220)`;
+                        textColor = '#fff';
+                    } else {
+                        backgroundColor = `rgb(0, 112, 204)`;
+                        textColor = '#fff'; // White text for dark background
+                    }
+                    
+                    return `<div class="day-cell" style="background: ${backgroundColor}; color: ${textColor}; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600;" title="${row.state}: Rs ${roundedCost.toLocaleString()}">${roundedCost}</div>`;
+                }).join('')}
+            </div>
+        `;
+    });
+    
+    heatmapHTML += '</div>';
+    
+    // Update title with date range
+    const titleElement = document.querySelector('.diet-heatmap-section .trends-chart-title');
+    if (titleElement && uniqueDates.length > 0) {
+        const startDate = uniqueDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const endDate = uniqueDates[uniqueDates.length - 1].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        titleElement.textContent = `State-wise Comparison - Last 10 Days (${startDate} - ${endDate})`;
+    }
+    
+    container.innerHTML = heatmapHTML;
+}
+
+// Map Controls Setup
+function setupMapControls() {
+    const mapDateSelect = document.getElementById('mapDate');
+    const mapGroupSelect = document.getElementById('mapGroup');
+    const mapCommoditySelect = document.getElementById('mapCommodity');
+    const mapSearchBtn = document.getElementById('mapSearch');
+    
+    if (!mapDateSelect || !mapGroupSelect || !mapCommoditySelect || !mapSearchBtn) {
+        console.warn('Map controls not found');
+        return;
+    }
+    
+    mapDateSelect.addEventListener('change', function() {
+        if (mapGroupSelect.value && mapCommoditySelect.value) {
+            mapSearchBtn.disabled = false;
+        }
+        
+        // Auto-update top states when date changes
+        if (mapCommoditySelect.value) {
+            updateTopStates(mapCommoditySelect.value, this.value);
+        }
+    });
+    
+    mapGroupSelect.addEventListener('change', function() {
+        const selectedGroup = this.value;
+        
+        if (selectedGroup && COMMODITY_GROUPS[selectedGroup]) {
+            const commodities = COMMODITY_GROUPS[selectedGroup];
+            mapCommoditySelect.innerHTML = '<option value="">Select commodity</option>' +
+                commodities.map(commodity => `<option value="${commodity}">${commodity}</option>`).join('');
+            mapCommoditySelect.disabled = false;
+        } else {
+            mapCommoditySelect.innerHTML = '<option value="">Select commodity</option>';
+            mapCommoditySelect.disabled = true;
+            mapSearchBtn.disabled = true;
+        }
+        
+        mapCommoditySelect.value = '';
+        mapSearchBtn.disabled = true;
+        
+        // Clear top states
+        document.getElementById('highPricesList').innerHTML = '<div class="states-loading">Select commodity to view data</div>';
+        document.getElementById('lowPricesList').innerHTML = '<div class="states-loading">Select commodity to view data</div>';
+    });
+    
+    mapCommoditySelect.addEventListener('change', function() {
+        mapSearchBtn.disabled = !this.value;
+        
+        // Auto-update KPIs and top states when commodity is selected
+        if (this.value) {
+            updateKPIs(this.value, mapDateSelect.value);
+            updateTopStates(this.value, mapDateSelect.value);
+        }
+    });
+    
+    mapSearchBtn.addEventListener('click', function() {
+        const selectedDate = mapDateSelect.value;
+        const selectedGroup = mapGroupSelect.value;
+        const selectedCommodity = mapCommoditySelect.value;
+        
+        if (selectedGroup && selectedCommodity) {
+            generateIndiaMap(selectedGroup, selectedCommodity, selectedDate);
+            updateTopStates(selectedCommodity, selectedDate);
+        }
+    });
+}
+
+// NEW: Setup Diet Chart Download Event Listener
+function setupDietChartDownload() {
+    const downloadDietChartBtn = document.getElementById('downloadDietChart');
+    if (downloadDietChartBtn) {
+        downloadDietChartBtn.addEventListener('click', function() {
+            if (nationalDietChart) {
+                const familySize = selectedFamilySize === 1 ? '1-person' : 'family-4';
+                const dateRange = selectedDietDateRange.replace('years', 'y').replace('year', 'y').replace('months', 'm');
+                const dateStr = new Date().toISOString().split('T')[0];
+                const filename = `diet-trends-${familySize}-${dateRange}-${dateStr}.png`;
+                
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = nationalDietChart.toBase64Image('image/png', 1.0);
+                link.click();
+            }
+        });
+    }
+}
+
 // KPI Functions
 function updateKPIs(commodity, selectedDate = null) {
     // Check if state data is available
@@ -2102,109 +2327,14 @@ function initializeMapWithRice() {
     }, 200);
 }
 
-// Summary Cards
-function updateSummaryCards() {
-    const latestData = getLatestData();
-    const previousData = getPreviousData();
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup diet chart download functionality
+    setupDietChartDownload();
     
-    const summaryGrid = document.getElementById('summaryGrid');
-    const summaryTitle = document.getElementById('summaryTitle');
-    
-    if (!summaryGrid) return;
-    
-    if (latestData.length === 0) {
-        summaryGrid.innerHTML = '<div class="loading-message">Loading market data...</div>';
-        return;
+    // Initialize other components as needed
+    if (typeof initializeDashboard === 'function') {
+        // Dashboard initialization is already called in Batch 1
+        console.log('Dashboard initialization completed');
     }
-    
-    const latestDate = latestData[0].Date;
-    const formattedDate = latestDate.toLocaleDateString('en-IN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    
-    if (summaryTitle) {
-        summaryTitle.textContent = `Latest Prices (${formattedDate})`;
-    }
-    
-    const commodityCards = latestData.map(item => {
-        const prevItem = previousData.find(p => p.Commodity === item.Commodity);
-        let changeText = '';
-        let changeClass = '';
-        
-        if (prevItem) {
-            const change = item.Price - prevItem.Price;
-            if (Math.abs(change) >= 0.01) {
-                const sign = change > 0 ? '+' : '';
-                const arrow = change > 0 ? ' ↗️' : ' ↘️';
-                changeText = `${sign}₹${change.toFixed(2)}${arrow}`;
-                changeClass = change > 0 ? 'positive' : 'negative';
-            } else {
-                changeText = '--';
-                changeClass = '';
-            }
-        } else {
-            changeText = '--';
-            changeClass = '';
-        }
-        
-        return `
-            <div class="summary-card">
-                <div class="commodity-name">${item.Commodity}</div>
-                <div class="commodity-price">Rs ${item.Price.toFixed(2)}/kg</div>
-                <div class="price-change ${changeClass}">${changeText}</div>
-            </div>
-        `;
-    }).join('');
-    
-    summaryGrid.innerHTML = commodityCards;
-    updateDietCostDisplay();
-}
-
-// Better null checks for data functions
-function getLatestData() {
-    if (!rawData || rawData.length === 0) return [];
-    const latestDate = new Date(Math.max(...rawData.map(d => d.Date.getTime())));
-    return rawData.filter(d => d.Date.getTime() === latestDate.getTime());
-}
-
-function getPreviousData() {
-    if (!rawData || rawData.length === 0) return [];
-    const dates = [...new Set(rawData.map(d => d.Date.getTime()))].sort((a, b) => b - a);
-    if (dates.length < 2) return [];
-    const previousDate = new Date(dates[1]);
-    return rawData.filter(d => d.Date.getTime() === previousDate.getTime());
-}
-
-// Utility Functions
-function showLoading(message) {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const loadingText = document.getElementById('loadingText');
-    if (loadingOverlay) {
-        if (loadingText) loadingText.textContent = message;
-        loadingOverlay.style.display = 'flex';
-    }
-}
-
-function hideLoading() {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-        loadingOverlay.style.display = 'none';
-    }
-}
-
-function showError(message) {
-    const mainContainer = document.querySelector('.main-content');
-    if (!mainContainer) return;
-    
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.innerHTML = `
-        <strong>Error:</strong> ${message}<br><br>
-        <button onclick="location.reload()" style="background: #0070CC; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
-            Reload Page
-        </button>
-    `;
-    mainContainer.appendChild(errorDiv);
-}
+});
