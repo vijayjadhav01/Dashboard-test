@@ -2049,40 +2049,34 @@ function setupDietChartDownload() {
     if (downloadDietChartBtn) {
         downloadDietChartBtn.addEventListener('click', function() {
             if (nationalDietChart) {
+                // Create a temporary canvas with white background
+                const originalCanvas = nationalDietChart.canvas;
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Set higher resolution and add padding
+                const padding = 40;
+                tempCanvas.width = originalCanvas.width + (padding * 2);
+                tempCanvas.height = originalCanvas.height + (padding * 2);
+                
+                // Fill with white background
+                tempCtx.fillStyle = '#FFFFFF';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Draw the original chart with padding offset
+                tempCtx.drawImage(originalCanvas, padding, padding);
+                
+                // Download as JPEG
                 const familySize = selectedFamilySize === 1 ? '1-person' : 'family-4';
                 const dateRange = selectedDietDateRange.replace('years', 'y').replace('year', 'y').replace('months', 'm');
                 const dateStr = new Date().toISOString().split('T')[0];
-                const filename = `diet-trends-${familySize}-${dateRange}-${dateStr}.png`;
+                const filename = `diet-trends-${familySize}-${dateRange}-${dateStr}.jpg`;
                 
-                if (nationalDietChart) {
-    // Create a temporary canvas with white background
-    const originalCanvas = nationalDietChart.canvas;
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    // Set higher resolution and add padding
-    const padding = 40;
-    tempCanvas.width = originalCanvas.width + (padding * 2);
-    tempCanvas.height = originalCanvas.height + (padding * 2);
-    
-    // Fill with white background
-    tempCtx.fillStyle = '#FFFFFF';
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    
-    // Draw the original chart with padding offset
-    tempCtx.drawImage(originalCanvas, padding, padding);
-    
-    // Download as JPEG
-    const familySize = selectedFamilySize === 1 ? '1-person' : 'family-4';
-    const dateRange = selectedDietDateRange.replace('years', 'y').replace('year', 'y').replace('months', 'm');
-    const dateStr = new Date().toISOString().split('T')[0];
-    const filename = `diet-trends-${familySize}-${dateRange}-${dateStr}.jpg`;
-    
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = tempCanvas.toDataURL('image/jpeg', 0.95);
-    link.click();
-}
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = tempCanvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            }
         });
     }
 }
