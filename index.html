@@ -1,24 +1,4 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>New Design Dashboard</title>
-  <link rel="stylesheet" href="./style.css">
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>New Design Dashboard</title>
-  <link rel="stylesheet" href="./style.css">
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -76,159 +56,161 @@
             <!-- STATE-WISE MAP SECTION -->
             <section id="state-map-section" class="content-section active">
               
-              <!-- NEW: Monthly Average Map Container - ADD THIS ONLY -->
-<h1 class="map-section-header">Monthly Average Prices</h1>
-<div class="card">
-    <div class="map-section">
-        <div class="map-sidebar">
-            <div class="map-controls">
-                <div class="control-group">
-                    <label for="monthlyMapMonth">Month</label>
-                    <select id="monthlyMapMonth" class="select-input">
-                        <option value="January">January</option>
-                        <option value="February">February</option>
-                        <option value="March">March</option>
-                        <option value="April">April</option>
-                        <option value="May">May</option>
-                        <option value="June">June</option>
-                        <option value="July">July</option>
-                        <option value="August">August</option>
-                        <option value="September">September</option>
-                        <option value="October">October</option>
-                        <option value="November">November</option>
-                        <option value="December">December</option>
-                    </select>
-                </div>
-                
-                <div class="control-group">
-                    <label for="monthlyMapYear">Year</label>
-                    <select id="monthlyMapYear" class="select-input">
-                        <!-- Will be populated dynamically from 2014 to current year -->
-                    </select>
-                </div>
-                
-                <div class="control-group">
-                    <label for="monthlyMapGroup">Commodity Group</label>
-                    <select id="monthlyMapGroup" class="select-input">
-                        <option value="">Select Group</option>
-                        <option value="Food Grains">Food Grains</option>
-                        <option value="Edible Oils">Edible Oils</option>
-                        <option value="Pulses">Pulses</option>
-                        <option value="Vegetables">Vegetables</option>
-                        <option value="Other Items">Other Items</option>
-                    </select>
-                </div>
-                
-                <div class="control-group">
-                    <label for="monthlyMapCommodity">Commodity</label>
-                    <select id="monthlyMapCommodity" class="select-input" disabled>
-                        <option value="">Select Commodity</option>
-                    </select>
-                </div>
-                
-                <button id="monthlyMapSearch" class="search-btn" disabled>Search</button>
-            </div>
+                <!-- Monthly Average Map Container -->
+                <h1 class="map-section-header">Monthly Average Prices</h1>
+                <div class="card">
+                    <div class="map-section">
+                        <div class="map-sidebar">
+                            <div class="map-controls">
+                                <div class="control-group">
+                                    <label for="monthlyMapMonth">Month</label>
+                                    <select id="monthlyMapMonth" class="select-input">
+                                        <option value="January">January</option>
+                                        <option value="February">February</option>
+                                        <option value="March">March</option>
+                                        <option value="April">April</option>
+                                        <option value="May">May</option>
+                                        <option value="June">June</option>
+                                        <option value="July">July</option>
+                                        <option value="August">August</option>
+                                        <option value="September">September</option>
+                                        <option value="October">October</option>
+                                        <option value="November">November</option>
+                                        <option value="December">December</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="monthlyMapYear">Year</label>
+                                    <select id="monthlyMapYear" class="select-input">
+                                        <!-- Will be populated dynamically from 2014 to current year -->
+                                    </select>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="monthlyMapGroup">Commodity Group</label>
+                                    <select id="monthlyMapGroup" class="select-input">
+                                        <option value="">Select Group</option>
+                                        <option value="Food Grains">Food Grains</option>
+                                        <option value="Edible Oils">Edible Oils</option>
+                                        <option value="Pulses">Pulses</option>
+                                        <option value="Vegetables">Vegetables</option>
+                                        <option value="Other Items">Other Items</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="monthlyMapCommodity">Commodity</label>
+                                    <select id="monthlyMapCommodity" class="select-input" disabled>
+                                        <option value="">Select Commodity</option>
+                                    </select>
+                                </div>
+                                
+                                <button id="monthlyMapSearch" class="search-btn" disabled>Search</button>
+                            </div>
 
-            <div class="map-legend" id="monthlyMapLegend"></div>
-        </div>
-        
-        <div class="map-container">
-            <div class="india-map" id="monthlyIndiaMap">
-                <div class="map-placeholder">Loading monthly average map...</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Monthly Average Prices Map card -->
-
-<div class="card">
-    <h3 class="section-title">Historical Price Trends</h3>
-    
-    <!-- Chart Filters -->
-    <div class="regional-chart-filters">
-        
-        <!-- First Row: Commodity Group and Commodity -->
-        <div class="filter-row-one">
-            
-            <!-- Commodity Group Selection -->
-            <div class="control-group">
-                <label for="regionalChartGroup">Select Group</label>
-                <select id="regionalChartGroup" class="select-input">
-                    <option value="">Choose Group</option>
-                    <option value="Food Grains">Food Grains</option>
-                    <option value="Edible Oils">Edible Oils</option>
-                    <option value="Pulses">Pulses</option>
-                    <option value="Vegetables">Vegetables</option>
-                    <option value="Other Items">Other Items</option>
-                </select>
-            </div>
-            
-            <!-- Commodity Selection -->
-            <div class="control-group">
-                <label for="regionalChartCommodity">Select Commodity</label>
-                <select id="regionalChartCommodity" class="select-input" disabled>
-                    <option value="">Choose Commodity</option>
-                </select>
-            </div>
-            
-        </div>
-        
-        <!-- Second Row: State Selection -->
-        <div class="filter-row-two">
-            <label>Select States (Multiple)</label>
-            
-            <div class="state-selection-container">
-                <button id="stateSelectionToggle" class="state-toggle-btn">
-                    <span id="stateSelectionText">Choose States...</span>
-                    <span class="dropdown-arrow">▼</span>
-                </button>
-                
-                <div id="stateSelectionDropdown" class="state-dropdown">
-                    <div class="state-search-container">
-                        <input type="text" id="stateSearchInput" placeholder="Search states..." class="state-search-input">
-                    </div>
-                    <div id="stateCheckboxContainer">
-                        <!-- State checkboxes will be populated here -->
+                            <div class="map-legend" id="monthlyMapLegend"></div>
+                        </div>
+                        
+                        <div class="map-container">
+                            <div class="india-map" id="monthlyIndiaMap">
+                                <div class="map-placeholder">Loading monthly average map...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Third Row: Date Range Filter -->
-        <div class="filter-row-three">
-            <label>Time Range</label>
-            <div class="time-range-buttons">
-                <button class="time-range-btn" data-range="6months">6 Months</button>
-                <button class="time-range-btn" data-range="1year">1 Year</button>
-                <button class="time-range-btn" data-range="2years">2 Years</button>
-                <button class="time-range-btn" data-range="5years">5 Years</button>
-                <button class="time-range-btn active" data-range="all">All Data</button>
-            </div>
-        </div>
-        
-    </div>
-    
-    <!-- Chart Section -->
-    <div class="regional-chart-section" id="regionalChartSection" style="display: none;">
-        <div class="regional-chart-container">
-            <canvas id="regionalHistoricalChart"></canvas>
-        </div>
-        
-        <!-- Chart Controls -->
-        <div class="regional-chart-controls" style="text-align: center; margin-top: 1rem;">
-    <button id="downloadRegionalChart" class="download-btn" style="display: none;">
-        Download Chart Image
-    </button>
-    <button id="downloadRegionalData" class="download-btn" style="display: none; margin-left: 1rem;">
-        Download Data (CSV)
-    </button>
-    <button id="clearRegionalChart" class="download-btn" style="background: #dc3545; margin-left: 1rem;">
-        Clear All
-    </button>
-</div>
-              
-                <!-- Original Map Container Datewise -->
+
+                <!-- Regional Historical Chart (Moved Here - After Monthly Map) -->
+                <div class="card">
+                    <h3 class="section-title">Historical Price Trends</h3>
+                    
+                    <!-- Chart Filters -->
+                    <div class="regional-chart-filters">
+                        
+                        <!-- First Row: Commodity Group and Commodity -->
+                        <div class="filter-row-one">
+                            
+                            <!-- Commodity Group Selection -->
+                            <div class="control-group">
+                                <label for="regionalChartGroup">Select Group</label>
+                                <select id="regionalChartGroup" class="select-input">
+                                    <option value="">Choose Group</option>
+                                    <option value="Food Grains">Food Grains</option>
+                                    <option value="Edible Oils">Edible Oils</option>
+                                    <option value="Pulses">Pulses</option>
+                                    <option value="Vegetables">Vegetables</option>
+                                    <option value="Other Items">Other Items</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Commodity Selection -->
+                            <div class="control-group">
+                                <label for="regionalChartCommodity">Select Commodity</label>
+                                <select id="regionalChartCommodity" class="select-input" disabled>
+                                    <option value="">Choose Commodity</option>
+                                </select>
+                            </div>
+                            
+                        </div>
+                        
+                        <!-- Second Row: State Selection -->
+                        <div class="filter-row-two">
+                            <label>Select States (Multiple)</label>
+                            
+                            <div class="state-selection-container">
+                                <button id="stateSelectionToggle" class="state-toggle-btn">
+                                    <span id="stateSelectionText">Choose States...</span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </button>
+                                
+                                <div id="stateSelectionDropdown" class="state-dropdown">
+                                    <div class="state-search-container">
+                                        <input type="text" id="stateSearchInput" placeholder="Search states..." class="state-search-input">
+                                    </div>
+                                    <div id="stateCheckboxContainer">
+                                        <!-- State checkboxes will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Third Row: Date Range Filter -->
+                        <div class="filter-row-three">
+                            <label>Time Range</label>
+                            <div class="time-range-buttons">
+                                <button class="time-range-btn" data-range="6months">6 Months</button>
+                                <button class="time-range-btn" data-range="1year">1 Year</button>
+                                <button class="time-range-btn" data-range="2years">2 Years</button>
+                                <button class="time-range-btn" data-range="5years">5 Years</button>
+                                <button class="time-range-btn active" data-range="all">All Data</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Chart Section -->
+                    <div class="regional-chart-section" id="regionalChartSection" style="display: none;">
+                        <div class="regional-chart-container">
+                            <canvas id="regionalHistoricalChart"></canvas>
+                        </div>
+                        
+                        <!-- Chart Controls -->
+                        <div class="regional-chart-controls" style="text-align: center; margin-top: 1rem;">
+                            <button id="downloadRegionalChart" class="download-btn" style="display: none;">
+                                Download Chart Image
+                            </button>
+                            <button id="downloadRegionalData" class="download-btn" style="display: none; margin-left: 1rem;">
+                                Download Data (CSV)
+                            </button>
+                            <button id="clearRegionalChart" class="download-btn" style="background: #dc3545; margin-left: 1rem;">
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MOVED: Daily Map Container (Now Independent) -->
+                <h1 class="map-section-header">Daily Prices Map</h1>
                 <div class="card">
                     <div class="map-section">
                         <div class="map-sidebar">
@@ -295,7 +277,7 @@
                     </div>
                 </div>
 
-                <!-- NEW: Top 5 High/Low States -->
+                <!-- MOVED: Top 5 High/Low States (Now Independent) -->
                 <div class="top-states-container">
                     <div class="card">
                         <div class="states-card-header">
@@ -316,13 +298,14 @@
                     </div>
                 </div>
 
-                <!-- Latest Prices Section -->
+                <!-- MOVED: Latest Prices Section (Now Independent) -->
                 <div class="card">
                     <h3 class="summary-title" id="summaryTitle">Latest Prices</h3>
                     <div class="summary-grid" id="summaryGrid">
                         <div class="loading-message">Loading market data...</div>
                     </div>
                 </div>
+
             </section>
 
             <!-- TRENDS SECTION -->
@@ -399,7 +382,7 @@
                 </div>
             </section>
 
-            <!-- DIET CALCULATOR SECTION - SINGLE CONTAINER REDESIGN -->
+            <!-- DIET CALCULATOR SECTION -->
             <section id="diet-calculator-section" class="content-section">
                 <div class="card">
                     <h3 class="section-title">Daily Diet Cost Calculator</h3>
@@ -580,21 +563,19 @@
 
             <!-- ABOUT SECTION -->
             <section id="about-section" class="content-section">
-    <div class="card">
-        <h3 class="section-title">About</h3>
-        <div class="about-content">
-            <div class="about-text">
-                <p>This Food Commodity Price Dashboard is a project by <a href="https://www.indiaspend.com/" target="_blank" rel="noopener noreferrer">IndiaSpend.com</a>, designed to track daily retail prices of <a href="https://fcainfoweb.nic.in/Essential_comm.aspx" target="_blank" rel="noopener noreferrer">22 essential food commodities</a> across India. The dashboard sources its data from the <a href="https://fcainfoweb.nic.in/reports/Report_Menu_Web.aspx" target="_blank" rel="noopener noreferrer">Price Monitoring Cell </a> under the Department of Consumer Affairs, which collects prices from market centres in every Indian state and Union Territory.</p>
-                
-                <p>IndiaSpend automatically fetches and processes the latest available data each evening, allowing users to visualize and analyze food price trends by commodity and by state. The dashboard makes it easy for journalists, researchers, policymakers, and the public to monitor changes in food prices and understand trends at both state and national levels.</p>
-                
-                <p class="note"><strong>Note:</strong> The latest day's data is published on the dashboard after 6 PM IST each day.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-
+                <div class="card">
+                    <h3 class="section-title">About</h3>
+                    <div class="about-content">
+                        <div class="about-text">
+                            <p>This Food Commodity Price Dashboard is a project by <a href="https://www.indiaspend.com/" target="_blank" rel="noopener noreferrer">IndiaSpend.com</a>, designed to track daily retail prices of <a href="https://fcainfoweb.nic.in/Essential_comm.aspx" target="_blank" rel="noopener noreferrer">22 essential food commodities</a> across India. The dashboard sources its data from the <a href="https://fcainfoweb.nic.in/reports/Report_Menu_Web.aspx" target="_blank" rel="noopener noreferrer">Price Monitoring Cell </a> under the Department of Consumer Affairs, which collects prices from market centres in every Indian state and Union Territory.</p>
+                            
+                            <p>IndiaSpend automatically fetches and processes the latest available data each evening, allowing users to visualize and analyze food price trends by commodity and by state. The dashboard makes it easy for journalists, researchers, policymakers, and the public to monitor changes in food prices and understand trends at both state and national levels.</p>
+                            
+                            <p class="note"><strong>Note:</strong> The latest day's data is published on the dashboard after 6 PM IST each day.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- Source Information -->
             <section class="source-section">
@@ -631,23 +612,5 @@
         }
     </script>
     <script src="./script.js"></script>
-</body>
-</html>
-<!-- partial -->
-  <script src='https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&amp;display=swap'></script>
-<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns'></script>
-<script src='https://d3js.org/d3.v7.min.js'></script>
-<script src='https://d3js.org/topojson.v3.min.js'></script><script  src="./script.js"></script>
-
-</body>
-</html>
-<!-- partial -->
-  <script src='https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&amp;display=swap'></script>
-<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns'></script>
-<script src='https://d3js.org/d3.v7.min.js'></script>
-<script src='https://d3js.org/topojson.v3.min.js'></script><script  src="./script.js"></script>
-
 </body>
 </html>
