@@ -11,8 +11,12 @@ let selectedGroup = null;
 let selectedDateRange = 'all';
 let currentSection = 'state-map';
 let monthlyAverageData = [];
+let regionalChart = null;
+let selectedRegionalStates = [];
+let selectedRegionalTimeRange = 'all';
+let selectedRegionalCommodity = '';
+let selectedRegionalGroup = '';
 
-// NEW: Diet Trends Variables (Updated)
 let selectedDietDateRange = '3years';  // Default to Last 3 Years
 let selectedFamilySize = 4;
 
@@ -54,6 +58,14 @@ const DIET_DATE_RANGES = {
     'all': null
 };
 
+const REGIONAL_TIME_RANGES = {
+    '6months': 6,
+    '1year': 12,
+    '2years': 24,
+    '5years': 60,
+    'all': null
+};
+
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
@@ -83,6 +95,7 @@ async function initializeDashboard() {
         setupMapControls();
         setupMonthlyMapControls();
         setupDietTrendsControls();  // Updated function name
+        setupRegionalChartControls();
         populateDateFilter();
         populateYearDropdown();
         updateSummaryCards();
@@ -2350,6 +2363,479 @@ function setupDietChartDownload() {
         });
     }
 }
+
+// NEW: Setup Regional Chart Controls
+function setupRegionalChartControls() {
+    const regionalChartGroup = document.getElementById('regionalChartGroup');
+    const regionalChartCommodity = document.getElementById('regionalChartCommodity');
+    const stateSelectionToggle = document.getElementById('stateSelectionToggle');
+    const stateSelectionDropdown = document.getElementById('stateSelectionDropdown');
+    const stateSearchInput = document.getElementById('stateSearchInput');
+    const timeRangeButtons = document.querySelectorAll('.time-range-btn');
+    
+    if (!regionalChartGroup || !regionalChartCommodity || !stateSelectionToggle) {
+        console.warn('Regional chart controls not found');
+        return;
+    }
+    
+    // Populate states dropdown
+    populateStatesDropdown();
+    
+    // Group selection change
+    regionalChartGroup.addEventListener('change', function() {
+        const selectedGroup = this.value;
+        selectedRegionalGroup = selectedGroup;
+        
+        if (selectedGroup && COMMODITY_GROUPS[selectedGroup]) {
+            const commodities = COMMODITY_GROUPS[selectedGroup];
+            regionalChartCommodity.innerHTML = '<option value="">Choose Commodity</option>' +
+                commodities.map(commodity => `<option value="${commodity}">${commodity}</option>`).join('');
+            regionalChartCommodity.disabled = false;
+        } else {
+            regionalChartCommodity.innerHTML = '<option value="">Choose Commodity</option>';
+            regionalChartCommodity.disabled = true;
+        }
+        
+        regionalChartCommodity.value = '';
+        selectedRegionalCommodity = '';
+        hideRegionalChart();
+    });
+    
+    // Commodity selection change
+    regionalChartCommodity.addEventListener('change', function() {
+        selectedRegionalCommodity = this.value;
+        updateRegionalChart();
+    });
+    
+    // State selection toggle
+    stateSelectionToggle.addEventListener('click', function() {
+        const dropdown = stateSelectionDropdown;
+        const isVisible = dropdown.style.display === 'block';
+        dropdown.style.display = isVisible ? 'none' : 'block';
+        
+        // Update arrow
+        const arrow = this.querySelector('span:last-child');
+        arrow.textContent = isVisible ? '▼' : '▲';
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!stateSelectionToggle.contains(e.target) && !stateSelectionDropdown.contains(e.target)) {
+            stateSelectionDropdown.style.display = 'none';
+            const arrow = stateSelectionToggle.querySelector('span:last-child');
+            arrow.textContent = '▼';
+        }
+    });
+    
+    // State search functionality
+    if (stateSearchInput) {
+        stateSearchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const checkboxItems = document.querySelectorAll('.state-checkbox-item');
+            
+            checkboxItems.forEach(item => {
+                const stateName = item.textContent.toLowerCase();
+                item.style.display = stateName.includes(searchTerm) ? 'flex' : 'none';
+            });
+        });
+    }
+    
+    // Time range buttons
+    timeRangeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active from all buttons
+            timeRangeButtons.forEach(b => b.classList.remove('active'));
+            // Add active to clicked button
+            this.classList.add('active');
+            // Update selected time range
+            selectedRegionalTimeRange = this.dataset.range;
+            // Update chart
+            updateRegionalChart();
+        });
+    });
+    
+    console.log('Regional chart controls setup complete');
+}
+
+// NEW: Populate States Dropdown
+function populateStatesDropdown() {
+    const container = document.getElementById('stateCheckboxContainer');
+    if (!container || !monthlyAverageData || monthlyAverageData.length === 0) {
+        return;
+    }
+    
+    // Get unique states from monthly data
+    const allStates = [...new Set(monthlyAverageData.map(d => d.State))]
+        .filter(state => state && state.trim() !== '')
+        .sort();
+    
+    if (allStates.length === 0) {
+        container.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">No states available</div>';
+        return;
+    }
+    
+    // Create checkbox items
+    container.innerHTML = allStates.map(state => `
+        <div class="state-checkbox-item">
+            <input type="checkbox" id="state-${state.replace(/\s+/g, '-')}" value="${state}">
+            <label for="state-${state.replace(/\s+/g, '-')}">${state}</label>
+        </div>
+    `).join('');
+    
+    // Add event listeners to checkboxes
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelectedStates();
+            updateStateSelectionDisplay();
+            updateRegionalChart();
+        });
+    });
+    
+    console.log('States dropdown populated with', allStates.length, 'states');
+}
+
+// NEW: Update Selected States Array
+function updateSelectedStates() {
+    const checkboxes = document.querySelectorAll('#stateCheckboxContainer input[type="checkbox"]:checked');
+    selectedRegionalStates = Array.from(checkboxes).map(cb => cb.value);
+}
+
+// NEW: Update State Selection Display Text
+function updateStateSelectionDisplay() {
+    const displayElement = document.getElementById('stateSelectionText');
+    if (!displayElement) return;
+    
+    if (selectedRegionalStates.length === 0) {
+        displayElement.textContent = 'Choose States...';
+    } else if (selectedRegionalStates.length === 1) {
+        displayElement.textContent = selectedRegionalStates[0];
+    } else if (selectedRegionalStates.length <= 3) {
+        displayElement.textContent = selectedRegionalStates.join(', ');
+    } else {
+        displayElement.textContent = `${selectedRegionalStates.length} states selected`;
+    }
+}
+
+// NEW: Update Regional Chart
+function updateRegionalChart() {
+    if (!selectedRegionalCommodity || selectedRegionalStates.length === 0) {
+        hideRegionalChart();
+        return;
+    }
+    
+    showRegionalChart();
+    generateRegionalChart();
+}
+
+// NEW: Show Regional Chart Section
+function showRegionalChart() {
+    const chartSection = document.getElementById('regionalChartSection');
+    const downloadBtn = document.getElementById('downloadRegionalChart');
+    const downloadDataBtn = document.getElementById('downloadRegionalData');
+    
+    if (chartSection) chartSection.style.display = 'block';
+    if (downloadBtn) downloadBtn.style.display = 'inline-flex';
+    if (downloadDataBtn) downloadDataBtn.style.display = 'inline-flex';
+}
+
+// NEW: Hide Regional Chart Section
+function hideRegionalChart() {
+    const chartSection = document.getElementById('regionalChartSection');
+    const downloadBtn = document.getElementById('downloadRegionalChart');
+    const downloadDataBtn = document.getElementById('downloadRegionalData');
+    
+    if (chartSection) chartSection.style.display = 'none';
+    if (downloadBtn) downloadBtn.style.display = 'none';
+    if (downloadDataBtn) downloadDataBtn.style.display = 'none';
+    
+    // Clean up existing chart
+    if (regionalChart) {
+        regionalChart.destroy();
+        regionalChart = null;
+    }
+}
+
+// NEW: Generate Regional Chart
+function generateRegionalChart() {
+    const canvas = document.getElementById('regionalHistoricalChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Clean up existing chart
+    if (regionalChart) {
+        regionalChart.destroy();
+        regionalChart = null;
+    }
+    
+    // Get filtered data for selected states and commodity
+    const chartData = getRegionalChartData();
+    
+    if (chartData.length === 0) {
+        console.warn('No data available for regional chart');
+        return;
+    }
+    
+    // Logo plugin for regional chart
+    const logoPlugin = {
+        id: 'logoPlugin',
+        beforeDraw: function(chart) {
+            const ctx = chart.ctx;
+            const logo = new Image();
+            logo.crossOrigin = 'anonymous';
+            logo.onload = function() {
+                const logoWidth = 100;
+                const logoHeight = 38;
+                let drawWidth = logoWidth;
+                let drawHeight = logo.height * (logoWidth / logo.width);
+                if (drawHeight > logoHeight) {
+                    drawHeight = logoHeight;
+                    drawWidth = logo.width * (logoHeight / logo.height);
+                }
+                const padding = 70;
+                const x = chart.chartArea.right - drawWidth;
+                const y = chart.chartArea.bottom + padding;
+                ctx.save();
+                ctx.globalAlpha = 0.80;
+                ctx.drawImage(logo, x, y, drawWidth, drawHeight);
+                ctx.restore();
+            };
+            logo.src = 'https://raw.githubusercontent.com/vijayjadhav01/commodity-dashboard/main/Logo.png';
+        }
+    };
+    
+    // Create datasets for each selected state
+    const colors = ['#0070CC', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#FF8C42', '#6A4C93'];
+    const datasets = selectedRegionalStates.map((state, index) => {
+        const stateData = chartData.filter(d => d.state === state);
+        
+        return {
+            label: state,
+            data: stateData.map(d => ({
+                x: d.date,
+                y: d.value
+            })),
+            borderColor: colors[index % colors.length],
+            backgroundColor: colors[index % colors.length] + '20',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1,
+            pointRadius: 1,
+            pointHoverRadius: 6
+        };
+    });
+    
+    regionalChart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets },
+        plugins: [logoPlugin],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'month',
+                        displayFormats: {
+                            month: 'MMM yyyy'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Price (Rs/kg)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 15,
+                        boxWidth: 8,
+                        boxHeight: 8
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            const date = new Date(context[0].parsed.x);
+                            return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                        },
+                        label: function(context) {
+                            return `${context.dataset.label}: Rs ${context.parsed.y.toFixed(2)}/kg`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// NEW: Get Regional Chart Data
+function getRegionalChartData() {
+    if (!monthlyAverageData || monthlyAverageData.length === 0) {
+        return [];
+    }
+    
+    // Filter data by commodity and selected states
+    let filteredData = monthlyAverageData.filter(d => 
+        d.Commodity === selectedRegionalCommodity && 
+        selectedRegionalStates.includes(d.State)
+    );
+    
+    // Apply time range filter
+    if (selectedRegionalTimeRange !== 'all') {
+        const monthsBack = REGIONAL_TIME_RANGES[selectedRegionalTimeRange];
+        if (monthsBack) {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - monthsBack);
+            
+            filteredData = filteredData.filter(d => {
+                const itemDate = new Date(d.Year, getMonthIndex(d.Month), 1);
+                return itemDate >= startDate;
+            });
+        }
+    }
+    
+    // Transform data for chart
+    return filteredData.map(d => ({
+        state: d.State,
+        date: new Date(d.Year, getMonthIndex(d.Month), 1),
+        value: d.Value
+    })).sort((a, b) => a.date - b.date);
+}
+
+// NEW: Helper function to get month index
+function getMonthIndex(monthName) {
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months.indexOf(monthName);
+}
+
+// NEW: Setup Regional Chart Download Functionality
+function setupRegionalChartDownload() {
+    const downloadChartBtn = document.getElementById('downloadRegionalChart');
+    const downloadDataBtn = document.getElementById('downloadRegionalData');
+    
+    if (downloadChartBtn) {
+        downloadChartBtn.addEventListener('click', function() {
+            if (regionalChart) {
+                // Create temporary canvas with white background
+                const originalCanvas = regionalChart.canvas;
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Set dimensions with padding
+                const padding = 40;
+                tempCanvas.width = originalCanvas.width + (padding * 2);
+                tempCanvas.height = originalCanvas.height + (padding * 2);
+                
+                // Fill with white background
+                tempCtx.fillStyle = '#FFFFFF';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Draw the original chart with padding
+                tempCtx.drawImage(originalCanvas, padding, padding);
+                
+                // Generate filename
+                const commodity = selectedRegionalCommodity.replace(/[^a-zA-Z0-9]/g, '');
+                const states = selectedRegionalStates.length > 3 ? 
+                    `${selectedRegionalStates.length}states` : 
+                    selectedRegionalStates.join('-').replace(/[^a-zA-Z0-9-]/g, '');
+                const timeRange = selectedRegionalTimeRange;
+                const dateStr = new Date().toISOString().split('T')[0];
+                const filename = `regional-${commodity}-${states}-${timeRange}-${dateStr}.jpg`;
+                
+                // Download
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = tempCanvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            }
+        });
+    }
+    
+    if (downloadDataBtn) {
+        downloadDataBtn.addEventListener('click', function() {
+            downloadRegionalData();
+        });
+    }
+}
+
+// NEW: Download Regional Chart Data as CSV
+function downloadRegionalData() {
+    if (!selectedRegionalCommodity || selectedRegionalStates.length === 0) {
+        alert('Please select commodity and states first');
+        return;
+    }
+    
+    const chartData = getRegionalChartData();
+    if (chartData.length === 0) {
+        alert('No data available for download');
+        return;
+    }
+    
+    // Create CSV content
+    const csvHeader = 'Date,State,Commodity,Price\n';
+    const csvContent = chartData.map(item => {
+        const dateStr = item.date.toISOString().split('T')[0];
+        return `${dateStr},${item.state},${selectedRegionalCommodity},${item.value.toFixed(2)}`;
+    }).join('\n');
+    
+    const fullCsv = csvHeader + csvContent;
+    
+    // Create and trigger download
+    const blob = new Blob([fullCsv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    // Generate filename
+    const commodity = selectedRegionalCommodity.replace(/[^a-zA-Z0-9]/g, '');
+    const states = selectedRegionalStates.length > 3 ? 
+        `${selectedRegionalStates.length}states` : 
+        selectedRegionalStates.join('-').replace(/[^a-zA-Z0-9-]/g, '');
+    const timeRange = selectedRegionalTimeRange;
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.download = `regional-data-${commodity}-${states}-${timeRange}-${dateStr}.csv`;
+    
+    link.href = url;
+    link.click();
+    
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup diet chart download functionality
+    setupDietChartDownload();
+    
+    // ADD THIS NEW LINE:
+    setupRegionalChartDownload();  // <-- ADD THIS LINE
+    
+    // Initialize other components as needed
+    if (typeof initializeDashboard === 'function') {
+        // Dashboard initialization is already called in Batch 1
+        console.log('Dashboard initialization completed');
+    }
+});
 
 // KPI Functions
 function updateKPIs(commodity, selectedDate = null) {
