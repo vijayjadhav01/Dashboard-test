@@ -17,6 +17,7 @@ let selectedRegionalTimeRange = 'all';
 let selectedRegionalCommodity = '';
 let selectedRegionalGroup = '';
 
+// NEW: Diet Trends Variables (Updated)
 let selectedDietDateRange = '3years';  // Default to Last 3 Years
 let selectedFamilySize = 4;
 
@@ -2455,6 +2456,70 @@ function setupRegionalChartControls() {
     });
     
     console.log('Regional chart controls setup complete');
+  
+// Time range buttons
+timeRangeButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Remove active from all buttons
+        timeRangeButtons.forEach(b => b.classList.remove('active'));
+        // Add active to clicked button
+        this.classList.add('active');
+        // Update selected time range
+        selectedRegionalTimeRange = this.dataset.range;
+        // Update chart
+        updateRegionalChart();
+    });
+});
+
+// ADD THIS ENTIRE SECTION RIGHT HERE:
+// Clear All button functionality
+const clearButton = document.getElementById('clearRegionalChart');
+if (clearButton) {
+    clearButton.addEventListener('click', function() {
+        // Reset dropdowns
+        regionalChartGroup.value = '';
+        regionalChartCommodity.innerHTML = '<option value="">Choose Commodity</option>';
+        regionalChartCommodity.disabled = true;
+        
+        // Clear selected states
+        const checkboxes = document.querySelectorAll('#stateCheckboxContainer input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = false);
+        
+        // Reset state selection display
+        const displayElement = document.getElementById('stateSelectionText');
+        if (displayElement) displayElement.textContent = 'Choose States...';
+        
+        // Reset time range to default (All Data)
+        timeRangeButtons.forEach(btn => btn.classList.remove('active'));
+        const allDataBtn = document.querySelector('.time-range-btn[data-range="all"]');
+        if (allDataBtn) allDataBtn.classList.add('active');
+        
+        // Clear search input
+        if (stateSearchInput) stateSearchInput.value = '';
+        
+        // Show all state checkboxes
+        const checkboxItems = document.querySelectorAll('.state-checkbox-item');
+        checkboxItems.forEach(item => item.style.display = 'flex');
+        
+        // Reset ONLY regional chart variables
+        selectedRegionalStates = [];
+        selectedRegionalTimeRange = 'all';
+        selectedRegionalCommodity = '';
+        selectedRegionalGroup = '';
+        
+        // Clear only the chart lines (destroy and recreate empty chart)
+        if (regionalChart) {
+            regionalChart.destroy();
+            regionalChart = null;
+        }
+        
+        console.log('Regional chart filters cleared');
+    });
+}
+// END OF ADDED SECTION
+
+console.log('Regional chart controls setup complete');
+  
 }
 
 // NEW: Populate States Dropdown
