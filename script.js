@@ -10,6 +10,7 @@ let selectedCommodities = [];
 let selectedGroup = null;
 let selectedDateRange = 'all';
 let currentSection = 'state-map';
+let monthlyAverageData = [];
 
 // NEW: Diet Trends Variables (Updated)
 let selectedDietDateRange = '3years';  // Default to Last 3 Years
@@ -72,20 +73,26 @@ async function initializeDashboard() {
         await Promise.all([
             loadMainData(),
             loadStateData(),
-            loadMapData()
+            loadMapData(),
+            loadMonthlyAverageData()
         ]);
         
         // Initialize components
         setupEventListeners();
         setupChartControls();
         setupMapControls();
+        setupMonthlyMapControls();
         setupDietTrendsControls();  // Updated function name
         populateDateFilter();
+        populateYearDropdown();
         updateSummaryCards();
         updateDietCostDisplay();
         
         // Auto-initialize with proper event handling
         await initializeDefaultSelections();
+
+        // Initialize monthly map with defaults
+        initializeMonthlyMapDefaults();
         
         // Initialize diet trends with new logic
         initializeDietTrends();
@@ -407,6 +414,99 @@ async function loadMapData() {
     }
 }
 
+// NEW: Load Monthly Average Data from "Month Average" sheet
+async function loadMonthlyAverageData() {
+    const sheetId = "18LVYFWEGfgLNqlo_mY5A70cSmXQBXjd8Lry0ivj2AO8";
+    const sheetName = "Month Average";
+    const urls = [
+        `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`,
+        `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0&sheet=${encodeURIComponent(sheetName)}`
+    ];
+    
+    let csvText = null;
+    for (const url of urls) {
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                csvText = await response.text();
+                if (csvText.length > 100) break;
+            }
+        } catch (error) {
+            console.log('Monthly data URL failed:', url, error.message);
+        }
+    }
+    
+    if (!csvText || csvText.length < 100) {
+        console.error('Could not load monthly average data');
+        monthlyAverageData = [];
+        return;
+    }
+    
+    monthlyAverageData = parseMonthlyDataFromCSV(csvText);
+    console.log('Monthly average data loaded:', monthlyAverageData.length, 'records');
+}
+
+// NEW: Parse Monthly Average CSV Data
+function parseMonthlyDataFromCSV(csvText) {
+    const lines = csvText.split('\n').filter(line => line.trim());
+    const data = [];
+    
+    const parseCSVLine = (line) => {
+        const values = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                values.push(current.trim().replace(/^"|"$/g, ''));
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        values.push(current.trim().replace(/^"|"$/g, ''));
+        return values;
+    };
+    
+    // Parse CSV: State, Commodity, Group, Month, Year, Value
+    for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (!values || values.length < 6) continue;
+        
+        const state = values[0];
+        const commodity = values[1];
+        const group = values[2];
+        const month = values[3];
+        const year = parseInt(values[4]);
+        const value = parseFloat(values[5]);
+        
+        // Validate data
+        if (!state || !commodity || !group || !month || !year || isNaN(value) || value <= 0) {
+            continue;
+        }
+        
+        // Apply commodity name mappings if needed
+        let displayCommodity = commodity;
+        if (COMMODITY_MAPPINGS[commodity]) {
+            displayCommodity = COMMODITY_MAPPINGS[commodity];
+        }
+        
+        data.push({
+            State: state,
+            Commodity: displayCommodity,
+            Group: group,
+            Month: month,
+            Year: year,
+            Value: value
+        });
+    }
+    
+    return data;
+}
+
 // Better data parsing with validation
 function parseMainData(csvText) {
     const lines = csvText.split('\n').filter(line => line.trim());
@@ -724,6 +824,109 @@ function populateDateFilter() {
         mapDateSelect.max = latestDate.toISOString().split('T')[0];
         mapDateSelect.disabled = false;
     }
+}
+
+// NEW: Populate Year Dropdown with available years from data
+function populateYearDropdown() {
+    const monthlyMapYear = document.getElementById('monthlyMapYear');
+    if (!monthlyMapYear || !monthlyAverageData || monthlyAverageData.length === 0) {
+        return;
+    }
+    
+    // Get unique years from data and sort descending (newest first)
+    const uniqueYears = [...new Set(monthlyAverageData.map(d => d.Year))]
+        .sort((a, b) => b - a);
+    
+    // Clear existing options
+    monthlyMapYear.innerHTML = '';
+    
+    // Add year options
+    uniqueYears.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        monthlyMapYear.appendChild(option);
+    });
+    
+    console.log('Year dropdown populated with years:', uniqueYears);
+}
+
+// NEW: Get Latest Available Month/Year from dataset
+function getLatestMonthYear(data) {
+    if (!data || data.length === 0) {
+        return { month: 'June', year: new Date().getFullYear() };
+    }
+    
+    // Find the most recent year
+    const latestYear = Math.max(...data.map(d => d.Year));
+    
+    // Get all months for the latest year
+    const monthsInLatestYear = data
+        .filter(d => d.Year === latestYear)
+        .map(d => d.Month);
+    
+    const uniqueMonths = [...new Set(monthsInLatestYear)];
+    
+    // Month priority order (December = most recent, January = least recent)
+    const monthOrder = [
+        'December', 'November', 'October', 'September', 'August', 'July',
+        'June', 'May', 'April', 'March', 'February', 'January'
+    ];
+    
+    // Find the latest available month
+    let latestMonth = 'June'; // default fallback
+    for (const month of monthOrder) {
+        if (uniqueMonths.includes(month)) {
+            latestMonth = month;
+            break;
+        }
+    }
+    
+    console.log(`Latest available data: ${latestMonth} ${latestYear}`);
+    return { month: latestMonth, year: latestYear };
+}
+
+// NEW: Initialize Monthly Map with Default Values
+function initializeMonthlyMapDefaults() {
+    if (!monthlyAverageData || monthlyAverageData.length === 0) {
+        console.warn('No monthly data available for initialization');
+        return;
+    }
+    
+    // Get latest month/year
+    const { month, year } = getLatestMonthYear(monthlyAverageData);
+    
+    // Set default values
+    const monthlyMapMonth = document.getElementById('monthlyMapMonth');
+    const monthlyMapYear = document.getElementById('monthlyMapYear');
+    const monthlyMapGroup = document.getElementById('monthlyMapGroup');
+    const monthlyMapCommodity = document.getElementById('monthlyMapCommodity');
+    
+    if (monthlyMapMonth) monthlyMapMonth.value = month;
+    if (monthlyMapYear) monthlyMapYear.value = year;
+    if (monthlyMapGroup) monthlyMapGroup.value = 'Food Grains';
+    
+    // Trigger group change to populate commodities
+    if (monthlyMapGroup) {
+        const changeEvent = new Event('change');
+        monthlyMapGroup.dispatchEvent(changeEvent);
+        
+        // Set Rice as default commodity after a short delay
+        setTimeout(() => {
+            if (monthlyMapCommodity && monthlyMapCommodity.options.length > 1) {
+                monthlyMapCommodity.value = 'Rice';
+                const commodityChangeEvent = new Event('change');
+                monthlyMapCommodity.dispatchEvent(commodityChangeEvent);
+                
+                // Auto-generate map with defaults
+                setTimeout(() => {
+                    generateMonthlyIndiaMap('Food Grains', 'Rice', month, year);
+                }, 200);
+            }
+        }, 200);
+    }
+    
+    console.log(`Monthly map initialized with defaults: ${month} ${year}, Rice`);
 }
 
 // Event Listeners Setup
@@ -2043,6 +2246,73 @@ function setupMapControls() {
     });
 }
 
+// NEW: Setup Monthly Map Controls Event Listeners
+function setupMonthlyMapControls() {
+    const monthlyMapMonth = document.getElementById('monthlyMapMonth');
+    const monthlyMapYear = document.getElementById('monthlyMapYear');
+    const monthlyMapGroup = document.getElementById('monthlyMapGroup');
+    const monthlyMapCommodity = document.getElementById('monthlyMapCommodity');
+    const monthlyMapSearch = document.getElementById('monthlyMapSearch');
+    
+    if (!monthlyMapMonth || !monthlyMapYear || !monthlyMapGroup || !monthlyMapCommodity || !monthlyMapSearch) {
+        console.warn('Monthly map controls not found');
+        return;
+    }
+    
+    // Month selection change
+    monthlyMapMonth.addEventListener('change', function() {
+        if (monthlyMapGroup.value && monthlyMapCommodity.value) {
+            monthlyMapSearch.disabled = false;
+        }
+    });
+    
+    // Year selection change  
+    monthlyMapYear.addEventListener('change', function() {
+        if (monthlyMapGroup.value && monthlyMapCommodity.value) {
+            monthlyMapSearch.disabled = false;
+        }
+    });
+    
+    // Group selection change
+    monthlyMapGroup.addEventListener('change', function() {
+        const selectedGroup = this.value;
+        
+        if (selectedGroup && COMMODITY_GROUPS[selectedGroup]) {
+            const commodities = COMMODITY_GROUPS[selectedGroup];
+            monthlyMapCommodity.innerHTML = '<option value="">Select commodity</option>' +
+                commodities.map(commodity => `<option value="${commodity}">${commodity}</option>`).join('');
+            monthlyMapCommodity.disabled = false;
+        } else {
+            monthlyMapCommodity.innerHTML = '<option value="">Select commodity</option>';
+            monthlyMapCommodity.disabled = true;
+            monthlyMapSearch.disabled = true;
+        }
+        
+        monthlyMapCommodity.value = '';
+        monthlyMapSearch.disabled = true;
+    });
+    
+    // Commodity selection change
+    monthlyMapCommodity.addEventListener('change', function() {
+        monthlyMapSearch.disabled = !this.value;
+    });
+    
+    // Search button click
+    monthlyMapSearch.addEventListener('click', function() {
+        const selectedMonth = monthlyMapMonth.value;
+        const selectedYear = parseInt(monthlyMapYear.value);
+        const selectedGroup = monthlyMapGroup.value;
+        const selectedCommodity = monthlyMapCommodity.value;
+        
+        if (selectedMonth && selectedYear && selectedGroup && selectedCommodity) {
+            console.log(`Generating monthly map: ${selectedCommodity} - ${selectedMonth} ${selectedYear}`);
+            generateMonthlyIndiaMap(selectedGroup, selectedCommodity, selectedMonth, selectedYear);
+        }
+    });
+    
+    console.log('Monthly map controls event listeners setup complete');
+}
+
 // NEW: Setup Diet Chart Download Event Listener
 function setupDietChartDownload() {
     const downloadDietChartBtn = document.getElementById('downloadDietChart');
@@ -2344,6 +2614,166 @@ const maxPrice = Math.max(...prices);
 
 function createGradientLegend(minPrice, maxPrice) {
     const legendContainer = document.getElementById('mapLegend');
+    if (!legendContainer) return;
+    
+    const legendHTML = `
+        <div class="legend-title">Price Range (Rs/kg)</div>
+        <div class="legend-bar-container">
+            <span class="legend-min">Rs ${minPrice.toFixed(2)}</span>
+            <div class="legend-gradient-bar"></div>
+            <span class="legend-max">Rs ${maxPrice.toFixed(2)}</span>
+        </div>
+    `;
+    legendContainer.innerHTML = legendHTML;
+}
+
+// NEW: Generate Monthly India Map
+function generateMonthlyIndiaMap(group, commodity, month, year) {
+    const mapContainer = document.getElementById('monthlyIndiaMap');
+    if (!mapContainer) return;
+    
+    // Check if D3 is available
+    if (typeof d3 === 'undefined' || !window.d3Loaded) {
+        mapContainer.innerHTML = `
+            <div style="text-align: center; color: #dc3545; padding: 40px;">
+                <h4>Map Library Not Available</h4>
+                <p>D3.js library failed to load. Map functionality is temporarily disabled.</p>
+                <p>Please refresh the page or check your internet connection.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    if (!mapData) {
+        mapContainer.innerHTML = `
+            <div style="text-align: center; color: #dc3545; padding: 40px;">
+                <h4>Map Data Not Available</h4>
+                <p>Unable to load India map data. Please check your internet connection.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Check if monthly data is available
+    if (!monthlyAverageData || monthlyAverageData.length === 0) {
+        mapContainer.innerHTML = `
+            <div style="text-align: center; color: #dc3545; padding: 40px;">
+                <h4>Monthly Data Not Available</h4>
+                <p>Unable to load monthly average data from the data source.</p>
+                <p>Map functionality requires monthly data to be loaded successfully.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    mapContainer.innerHTML = '';
+    
+    // Filter monthly data by month, year, and commodity
+    const commodityMonthlyData = monthlyAverageData.filter(d => 
+        d.Commodity === commodity && 
+        d.Month === month && 
+        d.Year === year
+    );
+    
+    if (commodityMonthlyData.length === 0) {
+        mapContainer.innerHTML = `
+            <div style="text-align: center; color: #666; padding: 40px;">
+                <h4>No Data Available</h4>
+                <p>No data found for ${commodity} in ${month} ${year}</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const prices = commodityMonthlyData.map(d => d.Value);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    
+    // Same color scale as daily map (blue gradient)
+    const colorScale = d3.scaleLinear()
+        .domain([
+            minPrice, 
+            minPrice + (maxPrice - minPrice) * 0.25,
+            minPrice + (maxPrice - minPrice) * 0.5,
+            minPrice + (maxPrice - minPrice) * 0.75,
+            maxPrice
+        ])
+        .range([
+            '#A9E1FF',  // Lightest blue
+            '#88C3FF',  // Light blue
+            '#67A6FF',  // Medium blue  
+            '#428BEA',  // Dark blue
+            '#0070CC'   // Darkest blue (brand color)
+        ]);
+    
+    const width = mapContainer.clientWidth || 600;
+    const height = mapContainer.clientHeight || 400;
+    
+    const svg = d3.select('#monthlyIndiaMap')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+    
+    const projection = d3.geoMercator()
+        .fitSize([width, height], mapData);
+    
+    const path = d3.geoPath().projection(projection);
+    
+    const tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0);
+    
+    svg.selectAll('path')
+        .data(mapData.features)
+        .enter()
+        .append('path')
+        .attr('d', path)
+        .attr('class', 'state-path')
+        .attr('fill', d => {
+            const stateName = d.properties.ST_NM || d.properties.NAME_1 || d.properties.name;
+            const stateDataEntry = commodityMonthlyData.find(sd => {
+                const mappedName = getMapStateName(sd.State);
+                return mappedName === stateName || sd.State === stateName;
+            });
+            
+            if (stateDataEntry) {
+                return colorScale(stateDataEntry.Value);
+            }
+            return '#f0f0f0';
+        })
+        .on('mouseover', function(event, d) {
+            const stateName = d.properties.ST_NM || d.properties.NAME_1 || d.properties.name;
+            const stateDataEntry = commodityMonthlyData.find(sd => {
+                const mappedName = getMapStateName(sd.State);
+                return mappedName === stateName || sd.State === stateName;
+            });
+            
+            tooltip.transition()
+                .duration(200)
+                .style('opacity', .9);
+            
+            const tooltipContent = stateDataEntry 
+                ? `<strong>${stateName}</strong><br/>${commodity}: Rs ${stateDataEntry.Value.toFixed(2)}/kg<br/>${month} ${year} Average`
+                : `<strong>${stateName}</strong><br/>No data available`;
+            
+            tooltip.html(tooltipContent)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function(d) {
+            tooltip.transition()
+                .duration(500)
+                .style('opacity', 0);
+        });
+    
+    createMonthlyGradientLegend(minPrice, maxPrice);
+    
+    console.log(`Monthly map generated: ${commodity} - ${month} ${year}, Price range: Rs ${minPrice.toFixed(2)} - Rs ${maxPrice.toFixed(2)}`);
+}
+
+// NEW: Create Monthly Map Legend
+function createMonthlyGradientLegend(minPrice, maxPrice) {
+    const legendContainer = document.getElementById('monthlyMapLegend');
     if (!legendContainer) return;
     
     const legendHTML = `
