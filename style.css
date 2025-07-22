@@ -1585,3 +1585,499 @@ body {
     margin-bottom: 0.5rem;
     text-align: center;
 }
+
+/* STATE TRENDS CHART STYLES */
+
+.state-trends-filters {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 2rem;
+}
+
+.state-filters-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.state-filters-row .control-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Date Range Section */
+.date-range-section {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.date-range-controls {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.date-range-controls .control-group {
+    min-width: 150px;
+}
+
+.filter-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0070CC;
+    display: block;
+    margin-bottom: 0.8rem;
+}
+
+/* States Multi-select Dropdown */
+.states-selection-section {
+    text-align: center;
+}
+
+.states-multiselect-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.states-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.dropdown-header {
+    background: white;
+    border: 2px solid #0070CC;
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+    min-height: 50px;
+}
+
+.dropdown-header:hover {
+    border-color: #0056b3;
+    box-shadow: 0 0 0 2px rgba(0, 112, 204, 0.1);
+}
+
+.dropdown-text {
+    font-size: 0.9rem;
+    color: #333;
+    flex: 1;
+    text-align: left;
+}
+
+.dropdown-arrow {
+    font-size: 0.8rem;
+    color: #0070CC;
+    transition: transform 0.2s;
+}
+
+.states-dropdown.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #0070CC;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-actions {
+    padding: 0.8rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.select-all-btn,
+.clear-all-btn {
+    background: #0070CC;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.select-all-btn:hover,
+.clear-all-btn:hover {
+    background: #0056b3;
+}
+
+.clear-all-btn {
+    background: #6c757d;
+}
+
+.clear-all-btn:hover {
+    background: #5a6268;
+}
+
+/* States Checkboxes Grid - Horizontal Layout */
+.states-checkboxes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.state-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.state-checkbox-item:hover {
+    background: #f8f9fa;
+}
+
+.state-checkbox-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #0070CC;
+    cursor: pointer;
+}
+
+.state-checkbox-item label {
+    font-size: 0.8rem;
+    color: #333;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1.2;
+}
+
+/* Selected States Display */
+.dropdown-text.has-selection {
+    color: #0070CC;
+    font-weight: 500;
+}
+
+/* Chart Section Styles (Inherits from existing trends section) */
+#stateTrendsChartSection .chart-container {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+#stateTrendsChartSection .chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .state-filters-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .state-filters-row .control-group {
+        min-width: auto;
+    }
+    
+    .date-range-controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .date-range-controls .control-group {
+        min-width: 200px;
+        max-width: 300px;
+        width: 100%;
+    }
+    
+    .states-checkboxes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.4rem;
+        padding: 0.8rem;
+    }
+    
+    .state-checkbox-item {
+        padding: 0.6rem 0.4rem;
+    }
+    
+    .state-checkbox-item label {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .states-checkboxes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dropdown-actions {
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+    
+    .select-all-btn,
+    .clear-all-btn {
+        width: 100%;
+    }
+}
+
+/* Regional Historical Chart Styles - Add to style.css */
+
+.regional-chart-filters {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.filter-row-one {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-row-two {
+    margin-bottom: 1.5rem;
+}
+
+.filter-row-three {
+    /* No additional styles needed */
+}
+
+.regional-chart-filters .control-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0070CC;
+    margin-bottom: 0.5rem;
+}
+
+.regional-chart-filters .select-input {
+    min-width: 160px;
+    padding: 0.6rem;
+    border: 1px solid #0070CC;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    background: white;
+}
+
+.regional-chart-filters .select-input:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.filter-row-two label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0070CC;
+    margin-bottom: 0.5rem;
+}
+
+.filter-row-three label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0070CC;
+    margin-bottom: 0.5rem;
+}
+
+.state-selection-container {
+    position: relative;
+    display: inline-block;
+    min-width: 300px;
+}
+
+.state-toggle-btn {
+    width: 100%;
+    min-width: 300px;
+    padding: 0.6rem;
+    border: 1px solid #0070CC;
+    border-radius: 4px;
+    background: white;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-arrow {
+    color: #0070CC;
+}
+
+.state-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #0070CC;
+    border-radius: 4px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.state-search-container {
+    padding: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.state-search-input {
+    width: 100%;
+    padding: 0.3rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+.time-range-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.time-range-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.time-range-btn:hover {
+    background: #e9ecef;
+    border-color: #0070CC;
+    color: #0070CC;
+}
+
+.time-range-btn.active {
+    background: #0070CC;
+    color: white;
+    border: 1px solid #0070CC;
+}
+
+.time-range-btn.active:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+.regional-chart-section {
+    margin-bottom: 2rem;
+}
+
+.regional-chart-container {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    background: white;
+    border-radius: 6px;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+}
+
+.regional-chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.regional-chart-controls {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.regional-chart-controls .download-btn {
+    background: #0070CC;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 0.5rem;
+}
+
+.state-checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.state-checkbox-item:hover {
+    background: #f8f9fa;
+}
+
+.state-checkbox-item input[type="checkbox"] {
+    margin-right: 0.5rem;
+    accent-color: #0070CC;
+}
+
+.state-checkbox-item label {
+    cursor: pointer;
+    font-size: 0.85rem;
+    flex: 1;
+}
+
+/* Responsive design for regional chart */
+@media (max-width: 768px) {
+    .filter-row-one {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .state-selection-container {
+        min-width: 250px;
+    }
+    
+    .time-range-buttons {
+        gap: 0.3rem;
+    }
+    
+    .time-range-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+}
