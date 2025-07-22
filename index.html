@@ -75,6 +75,71 @@
         <main class="main-content">
             <!-- STATE-WISE MAP SECTION -->
             <section id="state-map-section" class="content-section active">
+              
+              <!-- NEW: Monthly Average Map Container - ADD THIS ONLY -->
+<h1 class="map-section-header">Monthly Average Prices</h1>
+<div class="card">
+    <div class="map-section">
+        <div class="map-sidebar">
+            <div class="map-controls">
+                <div class="control-group">
+                    <label for="monthlyMapMonth">Month</label>
+                    <select id="monthlyMapMonth" class="select-input">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="monthlyMapYear">Year</label>
+                    <select id="monthlyMapYear" class="select-input">
+                        <!-- Will be populated dynamically from 2014 to current year -->
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="monthlyMapGroup">Commodity Group</label>
+                    <select id="monthlyMapGroup" class="select-input">
+                        <option value="">Select Group</option>
+                        <option value="Food Grains">Food Grains</option>
+                        <option value="Edible Oils">Edible Oils</option>
+                        <option value="Pulses">Pulses</option>
+                        <option value="Vegetables">Vegetables</option>
+                        <option value="Other Items">Other Items</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="monthlyMapCommodity">Commodity</label>
+                    <select id="monthlyMapCommodity" class="select-input" disabled>
+                        <option value="">Select Commodity</option>
+                    </select>
+                </div>
+                
+                <button id="monthlyMapSearch" class="search-btn" disabled>Search</button>
+            </div>
+
+            <div class="map-legend" id="monthlyMapLegend"></div>
+        </div>
+        
+        <div class="map-container">
+            <div class="india-map" id="monthlyIndiaMap">
+                <div class="map-placeholder">Loading monthly average map...</div>
+            </div>
+        </div>
+    </div>
+</div>
+              
                 <!-- Original Map Container -->
                 <div class="card">
                     <div class="map-section">
