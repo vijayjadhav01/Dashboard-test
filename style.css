@@ -1577,3 +1577,11 @@ body {
 #kpiCurrent {
     display: none !important;
 }
+
+.map-section-header {
+    color: #0070CC;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
