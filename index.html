@@ -25,20 +25,20 @@
 
     <!-- Dashboard Container -->
     <div class="dashboard-container">
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar Navigation - REORDERED -->
         <nav class="sidebar">
             <div class="sidebar-menu">
-                <div class="menu-item active" data-section="state-map">
+                <div class="menu-item active" data-section="diet-calculator">
+                    <span class="menu-icon">🍽️</span>
+                    <span class="menu-text">Cost of a Healthy Diet</span>
+                </div>
+                <div class="menu-item" data-section="state-map">
                     <span class="menu-icon">🗺️</span>
-                    <span class="menu-text">Regional Analysis</span>
+                    <span class="menu-text">Food prices, by State</span>
                 </div>
                 <div class="menu-item" data-section="trends">
                     <span class="menu-icon">📈</span>
-                    <span class="menu-text">Trends</span>
-                </div>
-                <div class="menu-item" data-section="diet-calculator">
-                    <span class="menu-icon">🍽️</span>
-                    <span class="menu-text">Diet Calculator</span>
+                    <span class="menu-text">Compare earlier prices</span>
                 </div>
                 <div class="menu-item" data-section="recent-stories">
                     <span class="menu-icon">📰</span>
@@ -51,12 +51,111 @@
             </div>
         </nav>
 
-        <!-- Main Content Area -->
+<!-- Main Content Area -->
         <main class="main-content">
-            <!-- STATE-WISE MAP SECTION -->
-            <section id="state-map-section" class="content-section active">
-              
-                <!-- Monthly Average Map Container -->
+            
+            <!-- DIET CALCULATOR SECTION - NOW FIRST -->
+            <section id="diet-calculator-section" class="content-section active">
+                <div class="card">
+                    <h3 class="section-title">Cost of a Healthy Diet</h3>
+<div class="data-date-info" id="dietDataDateInfo" align="center">
+    Date: <span id="dietDataDate">Loading...</span>
+</div>
+                    
+                    <!-- Diet Cost Map Container -->
+                    <div class="diet-cost-map-section">
+                        <!-- Toggle Controls -->
+                        <div class="diet-cost-controls" style="text-align: center; margin-bottom: 2rem;">
+                            <div class="diet-cost-toggle">
+                                <button class="diet-cost-btn active" data-period="daily">Daily Cost</button>
+                                <button class="diet-cost-btn" data-period="monthly">Monthly Cost</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Map and Statistics Layout -->
+                        <div class="diet-cost-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                            <!-- Diet Cost Map -->
+                            <div class="map-container">
+    <div class="india-map" id="dietCostMap">
+        <div class="map-placeholder">Loading diet cost map...</div>
+    </div>
+</div>
+                            
+                            <!-- National Statistics Panel -->
+                            <div class="national-stats-panel">
+                                <h4 class="stats-title">National Statistics</h4>
+                                <div class="stats-content">
+                                    <div class="stat-item">
+                                        <span class="stat-label">1 Person:</span>
+                                        <span class="stat-value" id="nationalAvgCost">Rs 54.38/day</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Family (4 persons):</span>
+                                        <span class="stat-value" id="familyAvgCost">Rs 217.52/day</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Highest State:</span>
+                                        <span class="stat-value" id="highestStateCost">Loading...</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Lowest State:</span>
+                                        <span class="stat-value" id="lowestStateCost">Loading...</span>
+                                    </div>                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Diet Cost Trends Analysis - SIMPLIFIED -->
+                    <div class="diet-trends-analysis">
+                        <h3 class="section-title">Diet Cost Trends - Last 3 Years</h3>
+                        
+                        <!-- Family Size Filter Only -->
+                        <div class="diet-trends-controls" style="text-align: center; margin-bottom: 2rem;">
+                            <div class="family-size-filter">
+                                <label class="filter-label">Family Size:</label>
+                                <div class="family-size-buttons">
+                                    <button class="family-size-btn" data-size="1">1 Person</button>
+                                    <button class="family-size-btn active" data-size="4">Family (4 Persons)</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- National Trends Chart -->
+                        <div class="diet-trends-chart-section">
+                            <div class="trends-chart-container">
+                                <canvas id="nationalDietChart"></canvas>
+                            </div>
+                            <div class="chart-controls" style="text-align: center; margin-top: 1rem;">
+                                <button id="downloadDietChart" class="download-btn">
+                                    Download Chart Image
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+<!-- How We Calculate Section -->
+<div class="calculation-methodology" align="center">
+    <h4 class="methodology-title">How We Calculate:</h4>
+    <div class="methodology-content">
+        <p align="center"><strong>Daily Nutritional Requirements:</strong></p>
+        <p class="requirements-text" align="center" style="text-align: center;">
+            <strong>Cereals: 250g</strong> | <strong>Pulses: 85g</strong> | <strong>Vegetables: 400g</strong> | <strong>Oils: 27g</strong> | <strong>Milk: 300ml</strong> | <strong>Salt: 5g</strong> | <strong>Sugar: 25g</strong>
+        </p>
+        <p class="methodology-note" align="center" style="text-align: center;">
+            <em>* Based on <a href="https://www.nin.res.in/dietaryguidelines/pdfjs/locale/DGI07052024P.pdf" target="_blank" rel="noopener noreferrer">Dietary Guidelines for Indians</a> - ICMR-National Institute of Nutrition. 
+            Costs calculated using average market prices of available commodities.</em>
+        </p>
+    </div>
+</div>
+
+            </section>
+
+            <!-- STATE MAP SECTION - NOW SECOND, SIMPLIFIED -->
+            <section id="state-map-section" class="content-section">
+                
+                <!-- Monthly Average Map Container - KEEP AS IS -->
                 <h1 class="map-section-header">Monthly Average Prices</h1>
                 <div class="card">
                     <div class="map-section">
@@ -120,168 +219,12 @@
                     </div>
                 </div>
 
-                <!-- Regional Historical Chart -->
-                <div class="card">
-                    <h3 class="section-title">Historical Price Trends</h3>
-                    
-                    <!-- Chart Filters -->
-                    <div class="regional-chart-filters">
-                        
-                        <!-- First Row: Commodity Group and Commodity -->
-                        <div class="filter-row-one">
-                            
-                            <!-- Commodity Group Selection -->
-                            <div class="control-group">
-                                <label for="regionalChartGroup">Select Group</label>
-                                <select id="regionalChartGroup" class="select-input">
-                                    <option value="">Choose Group</option>
-                                    <option value="Food Grains">Food Grains</option>
-                                    <option value="Edible Oils">Edible Oils</option>
-                                    <option value="Pulses">Pulses</option>
-                                    <option value="Vegetables">Vegetables</option>
-                                    <option value="Other Items">Other Items</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Commodity Selection -->
-                            <div class="control-group">
-                                <label for="regionalChartCommodity">Select Commodity</label>
-                                <select id="regionalChartCommodity" class="select-input" disabled>
-                                    <option value="">Choose Commodity</option>
-                                </select>
-                            </div>
-                            
-                        </div>
-                        
-                        <!-- Second Row: State Selection -->
-                        <div class="filter-row-two">
-                            <label>Select States (Multiple)</label>
-                            
-                            <div class="state-selection-container">
-                                <button id="stateSelectionToggle" class="state-toggle-btn">
-                                    <span id="stateSelectionText">Choose States...</span>
-                                    <span class="dropdown-arrow">▼</span>
-                                </button>
-                                
-                                <div id="stateSelectionDropdown" class="state-dropdown">
-                                    <div class="state-search-container">
-                                        <input type="text" id="stateSearchInput" placeholder="Search states..." class="state-search-input">
-                                    </div>
-                                    <div id="stateCheckboxContainer">
-                                        <!-- State checkboxes will be populated here -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Third Row: Date Range Filter -->
-                        <div class="filter-row-three">
-                            <label>Time Range</label>
-                            <div class="time-range-buttons">
-                                <button class="time-range-btn" data-range="6months">6 Months</button>
-                                <button class="time-range-btn" data-range="1year">1 Year</button>
-                                <button class="time-range-btn" data-range="2years">2 Years</button>
-                                <button class="time-range-btn" data-range="5years">5 Years</button>
-                                <button class="time-range-btn active" data-range="all">All Data</button>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    
-                    <!-- Chart Section -->
-                    <div class="regional-chart-section" id="regionalChartSection" style="display: none;">
-                        <div class="regional-chart-container">
-                            <canvas id="regionalHistoricalChart"></canvas>
-                        </div>
-                        
-                        <!-- Chart Controls -->
-                        <div class="regional-chart-controls" style="text-align: center; margin-top: 1rem;">
-                            <button id="downloadRegionalChart" class="download-btn" style="display: none;">
-                                Download Chart Image
-                            </button>
-                            <button id="downloadRegionalData" class="download-btn" style="display: none; margin-left: 1rem;">
-                                Download Data (CSV)
-                            </button>
-                            <button id="clearRegionalChart" class="download-btn" style="background: #dc3545; margin-left: 1rem;">
-                                Clear All
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Daily Prices Map -->
-                <h1 class="map-section-header">Daily Prices Map</h1>
-                <div class="card">
-                    <div class="map-section">
-                        <div class="map-sidebar">
-                            <div class="map-controls">
-                                <div class="control-group">
-                                    <label for="mapDate">Date</label>
-                                    <input type="date" id="mapDate" class="date-input">
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="mapGroup">Commodity Group</label>
-                                    <select id="mapGroup" class="select-input">
-                                        <option value="">Select Group</option>
-                                        <option value="Food Grains">Food Grains</option>
-                                        <option value="Edible Oils">Edible Oils</option>
-                                        <option value="Pulses">Pulses</option>
-                                        <option value="Vegetables">Vegetables</option>
-                                        <option value="Other Items">Other Items</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="mapCommodity">Commodity</label>
-                                    <select id="mapCommodity" class="select-input" disabled>
-                                        <option value="">Select Commodity</option>
-                                    </select>
-                                </div>
-                                
-                                <button id="mapSearch" class="search-btn" disabled>Search</button>
-                            </div>
-
-                            <div class="kpi-section">
-                                <div class="kpi-current" id="kpiCurrent">
-                                    <h4>Current Day Summary</h4>
-                                    <div class="kpi-grid">
-                                        <div class="kpi-item">
-                                            <span class="kpi-label">Average</span>
-                                            <span class="kpi-value" id="avgPrice">--</span>
-                                        </div>
-                                        <div class="kpi-item">
-                                            <span class="kpi-label">Maximum</span>
-                                            <span class="kpi-value" id="maxPrice">--</span>
-                                        </div>
-                                        <div class="kpi-item">
-                                            <span class="kpi-label">Minimum</span>
-                                            <span class="kpi-value" id="minPrice">--</span>
-                                        </div>
-                                        <div class="kpi-item">
-                                            <span class="kpi-label">Modal</span>
-                                            <span class="kpi-value" id="modalPrice">--</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="map-legend" id="mapLegend"></div>
-                        </div>
-                        
-                        <div class="map-container">
-                            <div class="india-map" id="indiaMap">
-                                <div class="map-placeholder">Loading map...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Top 5 High/Low States -->
+                <!-- Top 5 High/Low States - MODIFIED TO CONNECT TO MONTHLY DATA -->
                 <div class="top-states-container">
                     <div class="card">
                         <div class="states-card-header">
-                            <h3 class="states-title">Top 5 High Prices</h3>
+                            <h3 class="states-title" id="highPricesTitle">Top 5 High Prices</h3>
+                            <p class="states-subtitle" id="highPricesSubtitle">Select commodity to view data</p>
                         </div>
                         <div class="states-list" id="highPricesList">
                             <div class="states-loading">Select commodity to view data</div>
@@ -290,268 +233,82 @@
                     
                     <div class="card">
                         <div class="states-card-header">
-                            <h3 class="states-title">Top 5 Low Prices</h3>
+                            <h3 class="states-title" id="lowPricesTitle">Top 5 Low Prices</h3>
+                            <p class="states-subtitle" id="lowPricesSubtitle">Select commodity to view data</p>
                         </div>
                         <div class="states-list" id="lowPricesList">
                             <div class="states-loading">Select commodity to view data</div>
                         </div>
                     </div>
                 </div>
+            </section>
 
-                <!-- Latest Prices Section -->
+<!-- TRENDS SECTION - NOW THIRD, COMPLETELY RESTRUCTURED -->
+            <section id="trends-section" class="content-section">
+                
+                <!-- Latest Prices Section - MOVED FROM REGIONAL ANALYSIS -->
                 <div class="card">
                     <h3 class="summary-title" id="summaryTitle">Latest Prices</h3>
                     <div class="summary-grid" id="summaryGrid">
                         <div class="loading-message">Loading market data...</div>
                     </div>
                 </div>
-
-            </section>
-
-            <!-- TRENDS SECTION -->
-            <section id="trends-section" class="content-section">
+                
+                <!-- Price Averages with Filters - COMPLETELY NEW STRUCTURE -->
                 <div class="card">
-                    <!-- Group Navigation -->
-                    <div class="group-navigation">
-                        <h3 class="section-title">Choose Group</h3>
-                        <div class="group-tabs">
-                            <button class="group-tab" data-group="Food Grains">Food Grains</button>
-                            <button class="group-tab" data-group="Edible Oils">Edible Oils</button>
-                            <button class="group-tab" data-group="Pulses">Pulses</button>
-                            <button class="group-tab" data-group="Vegetables">Vegetables</button>
-                            <button class="group-tab" data-group="Other Items">Other Items</button>
+                    <h3 class="section-title">Price Averages</h3>
+                    
+                    <!-- Three Sequential Filters -->
+                    <div class="trends-filters">
+                        <div class="filter-row">
+                            <div class="control-group">
+                                <label for="trendsGroup">Choose Group</label>
+                                <select id="trendsGroup" class="select-input">
+                                    <option value="">Select Group</option>
+                                    <option value="Food Grains">Food Grains</option>
+                                    <option value="Edible Oils">Edible Oils</option>
+                                    <option value="Pulses">Pulses</option>
+                                    <option value="Vegetables">Vegetables</option>
+                                    <option value="Other Items">Other Items</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="trendsCommodity">Choose Commodity</label>
+                                <select id="trendsCommodity" class="select-input" disabled>
+                                    <option value="">Select Commodity</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="trendsAverageRange">Choose Average Range</label>
+                                <select id="trendsAverageRange" class="select-input" disabled>
+                                    <option value="monthly">Monthly Avg</option>
+                                    <option value="weekly">Weekly Avg (7-Day Rolling)</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Commodity Selection -->
-                    <div class="commodity-selection" id="commoditySelection" style="display: none;">
-                        <h3 class="section-title">Select Commodities</h3>
-                        <div class="commodity-checkboxes" id="commodityCheckboxes">
-                            <!-- Dynamic content -->
-                        </div>
-                    </div>
-
-                    <!-- Date Range Filter -->
-                    <div class="date-filter-section" id="dateFilterSection" style="display: none;">
-                        <h3 class="section-title">Date Range Filter (Optional)</h3>
-                        <div class="date-filter-buttons">
-                            <button class="date-filter-btn" data-range="30">Last Month</button>
-                            <button class="date-filter-btn" data-range="90">Last 3 Months</button>
-                            <button class="date-filter-btn" data-range="180">Last 6 Months</button>
-                            <button class="date-filter-btn" data-range="365">Last Year</button>
-                            <button class="date-filter-btn active" data-range="all">Show All Data</button>
-                        </div>
-                    </div>
-
-                    <!-- Chart Section -->
-                    <div class="chart-section" id="chartSection" style="display: none;">
-                        <div class="chart-container">
-                            <canvas id="commodityChart"></canvas>
+                    <!-- Single Chart Display -->
+                    <div class="trends-chart-section" id="trendsChartSection" style="display: none;">
+                        <h4 class="trends-chart-title" id="trendsChartTitle">Price Averages</h4>
+                        <div class="trends-chart-container">
+                            <canvas id="trendsChart"></canvas>
                         </div>
                         <div class="chart-controls" style="text-align: center; margin-top: 1rem;">
-                            <button id="downloadChart" class="download-btn" style="display: none;">
+                            <button id="downloadTrendsChart" class="download-btn" style="display: none;">
                                 Download Chart Image
                             </button>
-                            <button id="downloadData" class="download-btn" style="display: none; margin-left: 1rem;">
+                            <button id="downloadTrendsData" class="download-btn" style="display: none; margin-left: 1rem;">
                                 Download Data
                             </button>
                         </div>
                     </div>
-
-                    <!-- Combined Averages Section -->
-                    <div class="combined-averages-section" id="combinedAveragesSection" style="display: none;">
-                        <h3 class="section-title">Price Averages</h3>
-                        <div class="averages-horizontal-container">
-                            <!-- Monthly Averages Chart -->
-                            <div class="averages-column">
-                                <h4 class="averages-subtitle">Monthly Avg</h4>
-                                <div class="averages-chart" id="monthlyAveragesChart">
-                                    <canvas id="monthlyChart" style="width: 100%; height: 400px;"></canvas>
-                                </div>
-                            </div>
-                            
-                            <!-- Weekly Averages Chart -->
-                            <div class="averages-column">
-                                <h4 class="averages-subtitle">Weekly Avg (7 Day Rolling Average)</h4>
-                                <div class="averages-chart" id="weeklyAveragesChart">
-                                    <canvas id="weeklyChart" style="width: 100%; height: 400px;"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
 
-            <!-- DIET CALCULATOR SECTION -->
-            <section id="diet-calculator-section" class="content-section">
-                <div class="card">
-                    <h3 class="section-title">Daily Diet Cost Calculator</h3>
-                    
-                    <!-- Diet Breakdown Container -->
-                    <div class="diet-breakdown-section">
-                        <!-- Latest Data -->
-                        <div class="data-date-info">
-                            <span class="data-date-label">Latest Data: <span id="dietDataDate">July 18, 2025</span></span>
-                        </div>
-                        
-                        <!-- Cost Summary Table -->
-                        <div class="cost-summary-table">
-                            <div class="cost-summary-header">
-                                <span class="cost-type-header"></span>
-                                <span class="person-header">1 Person</span>
-                                <span class="family-header">Family (4 Persons)</span>
-                            </div>
-                            
-                            <div class="cost-summary-row">
-                                <span class="cost-type-label">Daily Cost:</span>
-                                <span class="person-cost-value" id="dailyCost1">Rs 54.38</span>
-                                <span class="family-cost-value" id="dailyCost4">Rs 217.52</span>
-                            </div>
-                            
-                            <div class="cost-summary-row">
-                                <span class="cost-type-label">Monthly Total:</span>
-                                <span class="person-cost-value" id="monthlyTotal1">Rs 1631.44</span>
-                                <span class="family-cost-value" id="monthlyTotal4">Rs 6525.74</span>
-                            </div>
-                        </div>
-
-                        <!-- Breakdown Title -->
-                        <h4 class="breakdown-section-title">Breakdown (Daily)</h4>
-                        
-                        <!-- Horizontal Breakdown Items -->
-                        <div class="breakdown-items-horizontal">
-                            <div class="breakdown-item-card">
-                                <span class="item-category">Cereals</span>
-                                <span class="item-amount">(250g)</span>
-                                <span class="item-cost" id="cerealsCost">Rs 9.22</span>
-                            </div>
-                            
-                            <div class="breakdown-item-card">
-                                <span class="item-category">Pulses</span>
-                                <span class="item-amount">(85g)</span>
-                                <span class="item-cost" id="pulsesCost">Rs 8.86</span>
-                            </div>
-                            
-                            <div class="breakdown-item-card">
-                                <span class="item-category">Vegetables</span>
-                                <span class="item-amount">(400g)</span>
-                                <span class="item-cost" id="vegetablesCost">Rs 12.73</span>
-                            </div>
-                            
-                            <div class="breakdown-item-card">
-                                <span class="item-category">Oils</span>
-                                <span class="item-amount">(27g)</span>
-                                <span class="item-cost" id="oilsCost">Rs 4.55</span>
-                            </div>
-                            
-                            <div class="breakdown-item-card">
-                                <span class="item-category">Milk</span>
-                                <span class="item-amount">(300ml)</span>
-                                <span class="item-cost" id="milkCost">Rs 17.77</span>
-                            </div>
-                            
-                            <div class="breakdown-item-card">
-                                <span class="item-category">Salt</span>
-                                <span class="item-amount">(5g)</span>
-                                <span class="item-cost" id="saltCost">Rs 0.11</span>
-                            </div>
-                            
-                            <div class="breakdown-item-card">
-                                <span class="item-category">Sugar</span>
-                                <span class="item-amount">(25g)</span>
-                                <span class="item-cost" id="sugarCost">Rs 1.15</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Total Section -->
-                        <div class="breakdown-total-section">
-                            <div class="total-separator"></div>
-                            <div class="breakdown-total">
-                                <span class="total-label">Daily Total:</span>
-                                <span class="total-value" id="totalCost">Rs 54.38</span>
-                            </div>
-                        </div>
-
-                        <!-- How We Calculate Section -->
-                        <div class="calculation-methodology">
-                            <h4 class="methodology-title">How We Calculate:</h4>
-                            <div class="methodology-content">
-                                <p><strong>Daily Nutritional Requirements:</strong></p>
-                                <p class="requirements-text">
-                                    <strong>Cereals: 250g</strong> | <strong>Pulses: 85g</strong> | <strong>Vegetables: 400g</strong> | <strong>Oils: 27g</strong> | <strong>Milk: 300ml</strong> | <strong>Salt: 5g</strong> | <strong>Sugar: 25g</strong>
-                                </p>
-                                <p class="methodology-note">
-                                    <em>* Based on <a href="https://www.nin.res.in/dietaryguidelines/pdfjs/locale/DGI07052024P.pdf" target="_blank" rel="noopener noreferrer">Dietary Guidelines for Indians</a> - ICMR-National Institute of Nutrition. 
-                                    Costs calculated using average market prices of available commodities.</em>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Diet Cost Trends Analysis -->
-                <div class="card">
-                    <h3 class="section-title">Diet Cost Trends Analysis</h3>
-                    
-                    <!-- Trend Controls -->
-                    <div class="diet-trends-controls">
-                        <div class="family-size-filter">
-                            <label class="filter-label">Family Size:</label>
-                            <div class="family-size-buttons">
-                                <button class="family-size-btn" data-size="1">1 Person</button>
-                                <button class="family-size-btn active" data-size="4">Family (4 Persons)</button>
-                            </div>
-                        </div>
-                        
-                        <div class="date-range-filter">
-                            <label class="filter-label">Date Range:</label>
-                            <div class="date-range-buttons">
-                                <button class="date-range-btn" data-range="6months">Last 6 Months</button>
-                                <button class="date-range-btn" data-range="1year">Last Year</button>
-                                <button class="date-range-btn active" data-range="3years">Last 3 Years</button>
-                                <button class="date-range-btn" data-range="6years">Last 6 Years</button>
-                                <button class="date-range-btn" data-range="all">All Time</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- National Trends Chart -->
-                    <div class="diet-trends-chart-section">
-                        <h4 class="trends-chart-title" id="dietTrendsChartTitle">National Average - Diet Cost Trends (All Time)</h4>
-                        <div class="trends-chart-container">
-                            <canvas id="nationalDietChart"></canvas>
-                        </div>
-                        <div class="chart-controls" style="text-align: center; margin-top: 1rem;">
-                            <button id="downloadDietChart" class="download-btn">
-                                Download Chart Image
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- State-wise Heatmap -->
-                    <div class="diet-heatmap-section">
-                        <h4 class="trends-chart-title">State-wise Diet Cost - Monthly Averages</h4>
-                        
-                        <!-- Family Size Filter -->
-                        <div class="heatmap-controls" style="text-align: center; margin-bottom: 1rem;">
-                           
-                            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;">
-                                <button class="heatmap-family-btn active" data-size="1">1 Person</button>
-                                <button class="heatmap-family-btn" data-size="4">Family (4 Persons)</button>
-                            </div>
-                        </div>
-                        
-                        <div class="trends-heatmap-container" id="stateHeatmapContainer">
-                            <div class="trends-heatmap-placeholder">
-                                Interactive Heatmap: States × Monthly Averages
-                                <br>Showing state-wise diet cost using monthly average prices
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- RECENT STORIES SECTION -->
+            <!-- RECENT STORIES SECTION - UNCHANGED -->
             <section id="recent-stories-section" class="content-section">
                 <div class="card">
                     <h3 class="section-title">Recent Stories</h3>
@@ -566,7 +323,7 @@
                 </div>
             </section>
 
-            <!-- ABOUT SECTION -->
+            <!-- ABOUT SECTION - UNCHANGED -->
             <section id="about-section" class="content-section">
                 <div class="card">
                     <h3 class="section-title">About</h3>
